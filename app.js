@@ -10,10 +10,15 @@
   const pagesStatusNodes = document.querySelectorAll("[data-pages-status]");
   const commitNodes = document.querySelectorAll("[data-release-commit]");
   const packageNote = document.querySelector("[data-package-note]");
-  const publishedPathLabel = document.querySelector("[data-published-path-label]");
-  const publishedPathStatus = document.querySelector("[data-published-path-status]");
-  const publishedPathMessage = document.querySelector("[data-published-path-message]");
-  const publishedPathCard = document.querySelector("[data-published-path-card]");
+  const publishedPathLabels = document.querySelectorAll("[data-published-path-label]");
+  const publishedPathStatuses = document.querySelectorAll("[data-published-path-status]");
+  const publishedPathMessages = document.querySelectorAll("[data-published-path-message]");
+  const publishedPathCards = document.querySelectorAll("[data-published-path-card]");
+  const heroQuickstart = document.querySelector(".hero-quickstart");
+  const heroPublishedPreview = document.querySelector("[data-hero-published-preview]");
+  const heroSourceLabel = document.querySelector("[data-hero-source-label]");
+  const heroPublishedLabels = document.querySelectorAll("[data-hero-published-label]");
+  const heroPublishedStatuses = document.querySelectorAll("[data-hero-published-status]");
   const registryMessage = document.querySelector("[data-registry-message]");
   const installSummary = document.querySelector("[data-install-summary]");
   const publicationMessage = document.querySelector("[data-publication-message]");
@@ -68,7 +73,7 @@
       }
 
       const isPublished = release.publicationStatus === "PUBLISHED";
-      for (const node of document.querySelectorAll(".status-dot")) {
+      for (const node of document.querySelectorAll(".status-dot-release")) {
         node.classList.toggle("status-dot-warning", !isPublished);
         node.classList.toggle("status-dot-published", isPublished);
       }
@@ -81,14 +86,35 @@
 
       if (isPublished) {
         if (packageNote) packageNote.textContent = "The exact npm package and tarball match this release. Use the published path below.";
-        if (publishedPathLabel) publishedPathLabel.textContent = "PUBLISHED PATH / PRIMARY INSTALL";
-        if (publishedPathStatus) {
-          publishedPathStatus.textContent = "AVAILABLE";
-          publishedPathStatus.classList.remove("status-label-muted");
-          publishedPathStatus.classList.add("status-label-published");
+        if (heroSourceLabel) heroSourceLabel.textContent = "SOURCE PATH / CONTRIBUTOR PATH";
+        for (const node of publishedPathLabels) {
+          node.textContent = "PUBLISHED PATH / PRIMARY INSTALL";
         }
-        if (publishedPathMessage) publishedPathMessage.textContent = "The package path is available after the registry check returned this version.";
-        if (publishedPathCard) publishedPathCard.classList.add("code-card-published");
+        for (const node of publishedPathStatuses) {
+          node.textContent = "AVAILABLE";
+          node.classList.remove("status-label-muted");
+          node.classList.add("status-label-published");
+        }
+        for (const node of heroPublishedLabels) {
+          node.textContent = "PUBLISHED PATH / PRIMARY INSTALL";
+        }
+        for (const node of heroPublishedStatuses) {
+          node.textContent = "AVAILABLE NOW";
+          node.classList.remove("status-label-muted");
+          node.classList.add("status-label-published");
+        }
+        if (heroPublishedPreview) {
+          heroPublishedPreview.classList.add("is-published");
+        }
+        if (heroQuickstart) {
+          heroQuickstart.classList.add("is-published");
+        }
+        for (const node of publishedPathMessages) {
+          node.textContent = "The package path is available after the registry check returned this version.";
+        }
+        for (const node of publishedPathCards) {
+          node.classList.add("code-card-published");
+        }
         if (registryMessage) registryMessage.textContent = "The exact version and tarball are available from npm.";
         if (installSummary) installSummary.textContent = "The published package path is verified. The source path remains available for contributors and reproducible checks.";
         if (publicationMessage) publicationMessage.textContent = "npm publication verified for this version and tarball";

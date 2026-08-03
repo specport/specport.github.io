@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="SpecPort is a local deterministic CLI that proves the final Git-visible tree before merge."
+      content="SpecPort is a local CLI that checks the final Git-visible tree against what was reviewed before merge."
     />
     <meta name="theme-color" content="#f5f7fb" />
     <meta property="og:title" content="SpecPort — prove the final tree before merge" />
     <meta
       property="og:description"
-      content="A local deterministic CLI for final-tree review coverage, grounded specs, and human-owned release evidence."
+      content="A local CLI for checking AI-assisted changes against a review source or approved scope before merge."
     />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://specport.github.io/og-image.svg" />
@@ -27,7 +27,7 @@
         <a class="brand" href="#overview" aria-label="SpecPort home">
           <img class="brand-logo" src="./logo.svg" alt="" width="78" height="23" />
           <span class="brand-name">specport</span>
-          <span class="brand-context">LOCAL CLI / SPEC LIFECYCLE</span>
+          <span class="brand-context">LOCAL CLI</span>
         </a>
 
         <nav class="primary-nav" aria-label="Primary navigation">
@@ -43,79 +43,81 @@
         </nav>
 
         <div class="header-status" aria-label="Package publication status">
-          <span class="status-dot status-dot-warning" aria-hidden="true"></span>
+          <span class="status-dot status-dot-release status-dot-warning" aria-hidden="true"></span>
           <span data-release-status>NOT-PUBLISHED</span>
         </div>
       </div>
     </header>
 
     <main id="main-content">
-      <div class="release-banner" role="status">
-        <div class="release-banner-inner">
-          <span class="release-banner-label">RELEASE CANDIDATE</span>
-          <span>v<span data-release-version>pending</span> · <span data-release-license>MIT</span> · Node <span data-release-engine>≥20</span></span>
-          <span class="release-divider" aria-hidden="true"></span>
-          <span data-publication-message>npm publication is checked, not assumed</span>
-          <span class="release-divider" aria-hidden="true"></span>
-          <span class="release-banner-pages">Pages <span data-pages-status>SOURCE / VERIFY AFTER DEPLOY</span></span>
-        </div>
-        <a href="#release">View release truth <span aria-hidden="true">→</span></a>
-      </div>
-
       <section class="hero section-shell" id="overview">
         <div class="hero-copy">
-          <p class="eyebrow"><span class="eyebrow-rule" aria-hidden="true"></span> FINAL-TREE REVIEW COVERAGE</p>
-          <h1>Prove the final tree <em>before merge.</em></h1>
+          <p class="eyebrow"><span class="eyebrow-rule" aria-hidden="true"></span> FOR AI-ASSISTED CHANGES / LOCAL CLI</p>
+          <h1>Know what ships <em>before merge.</em></h1>
           <p class="hero-lede">
-            SpecPort is a local deterministic CLI that proves your final
-            Git-visible tree matches a review source or approved scope before
-            someone ships it.
+            SpecPort checks every file in your final Git-visible tree against
+            the review source or approved scope. See what was covered before
+            you merge.
+          </p>
+          <p class="hero-status" aria-label="Current package status">
+            <span class="status-dot status-dot-release status-dot-warning" aria-hidden="true"></span>
+            <span data-release-status>NOT-PUBLISHED</span>
+            <span aria-hidden="true">·</span>
+            v<span data-release-version>pending</span>
+            <span aria-hidden="true">·</span>
+            <span data-release-license>MIT</span>
+            <span aria-hidden="true">·</span>
+            Node <span data-release-engine>≥20</span>
+            <a href="#release">release truth <span aria-hidden="true">↗</span></a>
           </p>
           <div class="hero-actions">
-            <a class="button button-primary" href="#install">Install from source <span aria-hidden="true">↓</span></a>
-            <a class="button button-secondary" href="#commands">See the commands <span aria-hidden="true">→</span></a>
+            <a class="button button-primary" href="#install">Start with source <span aria-hidden="true">↓</span></a>
+            <a class="button button-secondary" href="https://github.com/stancsz/specport#readme">Read the README <span aria-hidden="true">↗</span></a>
           </div>
           <div class="hero-facts" aria-label="Product facts">
             <span>LOCAL-FIRST</span>
-            <span>MODEL-NEUTRAL</span>
+            <span>NO SOURCE UPLOAD</span>
             <span>HUMAN-OWNED SHIP DECISION</span>
           </div>
         </div>
 
-        <aside class="package-card" aria-labelledby="package-title">
-          <div class="card-topline">
-            <span>PACKAGE IDENTITY</span>
-            <span class="status-label status-label-warning"><span class="status-dot" aria-hidden="true"></span><span data-release-status>NOT-PUBLISHED</span></span>
+        <aside class="hero-quickstart" aria-labelledby="quickstart-title">
+          <div class="quickstart-topline">
+            <div>
+              <p class="quickstart-kicker">QUICK START</p>
+              <h2 id="quickstart-title">Run coverage locally.</h2>
+            </div>
+            <span class="status-label status-label-live"><span class="status-dot" aria-hidden="true"></span>AVAILABLE NOW</span>
           </div>
-          <h2 id="package-title"><span class="package-scope" data-release-package-scope>@specport/</span><span data-release-package>specport</span></h2>
-          <p class="package-summary">Deterministic final-tree review coverage and contract scaffolding for AI-assisted code changes.</p>
-          <div class="package-facts">
-            <div><span>VERSION</span><strong>v<span data-release-version>pending</span></strong></div>
-            <div><span>LICENSE</span><strong data-release-license>MIT</strong></div>
-            <div><span>RUNTIME</span><strong>Node <span data-release-engine>≥20</span></strong></div>
-            <div><span>BIN</span><strong data-release-bin>specport</strong></div>
+          <p class="quickstart-copy">Use the verified source path today. It builds the CLI, then checks the final tree in your repo.</p>
+          <div class="quickstart-code">
+            <div class="code-card-head">
+              <span data-hero-source-label>SOURCE PATH / AVAILABLE NOW</span>
+              <button class="copy-button" type="button" data-copy="git clone https://github.com/stancsz/specport.git&#10;cd specport&#10;npm ci&#10;npm run verify:package&#10;node dist/cli.js coverage">copy</button>
+            </div>
+            <pre><code><span class="code-muted">$</span> git clone https://github.com/stancsz/specport.git
+<span class="code-muted">$</span> cd specport
+<span class="code-muted">$</span> npm ci
+<span class="code-muted">$</span> npm run verify:package
+<span class="code-muted">$</span> node dist/cli.js coverage</code></pre>
+            <div class="code-card-foot"><span class="live-marker" aria-hidden="true"></span> local / no account / no source upload</div>
           </div>
-          <div class="package-note">
-            <span class="note-mark" aria-hidden="true">!</span>
-            <p data-package-note>Public npm install stays withheld until the registry and tarball are verified. Use the source path below today.</p>
+          <div class="published-preview" data-hero-published-preview>
+            <div>
+              <span class="published-preview-label" data-hero-published-label>PUBLISHED PATH / NOT AVAILABLE YET</span>
+              <code>npm install --save-dev @specport/specport</code>
+              <code>npx --no-install specport coverage</code>
+            </div>
+            <span class="status-label status-label-muted" data-hero-published-status>NOT AVAILABLE</span>
           </div>
-          <a class="text-link" href="#release">Inspect the release receipt <span aria-hidden="true">↗</span></a>
+          <a class="text-link" href="#install">See install details <span aria-hidden="true">↘</span></a>
         </aside>
       </section>
 
-      <nav class="action-rail" aria-label="SpecPort quick actions">
-        <div class="action-rail-inner">
-          <a href="#install"><span class="rail-index">01</span><strong>Install source</strong><small>verified path today</small></a>
-          <a href="#commands"><span class="rail-index">02</span><strong>Run coverage</strong><small>the first useful job</small></a>
-          <a href="https://github.com/stancsz/specport/blob/main/examples/product-contract.json"><span class="rail-index">03</span><strong>Read the contract <span aria-hidden="true">↗</span></strong><small>machine-readable example</small></a>
-          <a href="#release"><span class="rail-index">04</span><strong>Check release</strong><small>status, version, evidence</small></a>
-        </div>
-      </nav>
-
       <section class="section-shell section-block install-block" id="install">
         <div class="section-heading">
-          <p class="section-kicker">01 / QUICK START</p>
-          <h2>Start with the source you can verify.</h2>
+          <p class="section-kicker">01 / INSTALL</p>
+          <h2>Choose a path you can verify.</h2>
           <p data-install-summary>
             The public package is not verified yet. This path uses the repository,
             runs the package gate, and leaves you with the same local executable.
