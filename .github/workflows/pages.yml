@@ -1,0 +1,63 @@
+name: Publish GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out website
+        uses: actions/checkout@v5
+
+      - name: Check out package source
+        uses: actions/checkout@v5
+        with:
+          repository: stancsz/specport
+          ref: main
+          path: source
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Generate release metadata
+        run: node scripts/sync-site-release.mjs
+        env:
+          SPECPORT_SOURCE_DIR: source
+          SPECPORT_PAGES_STATUS: "PAGES / VERIFY AFTER DEPLOY"
+
+      - name: Prepare static site artifact
+        run: |
+          mkdir public
+          cp index.html styles.css app.js favicon.svg og-image.svg logo.svg release.json public/
+
+      - name: Upload static site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
