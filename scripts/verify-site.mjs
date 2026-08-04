@@ -194,6 +194,7 @@ assert(shareHtml.includes('data-share-input'), 'Share spec page is missing its s
 assert(shareHtml.includes('data-share-link'), 'Share spec page is missing its nearby generated-link slot.');
 assert(shareHtml.includes('data-share-result'), 'Share spec page is missing its result root.');
 assert(shareCss.includes('.share-hero') && shareCss.includes('.share-quick-link') && shareCss.includes('.share-result-panel'), 'Share spec stylesheet is missing core page treatments.');
+assert(shareCss.includes('min-height: 360px') && shareCss.includes('font-size: clamp(2.8rem, 5.4vw, 5.2rem)'), 'Share spec hero is too visually dominant.');
 assert(!script.includes('.innerHTML'), 'JavaScript must not assign fetched data with innerHTML.');
 assert(!script.includes('document.write'), 'JavaScript must not write fetched content into the document stream.');
 assert(!script.includes('insertAdjacentHTML'), 'JavaScript must not inject fetched content as HTML.');
