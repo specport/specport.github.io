@@ -68,7 +68,7 @@ jobs:
           echo "reported_version=$REPORTED_VERSION"
           test "$REPORTED_VERSION" = "$VERSION"
           node "$PUBLISHED_ENTRYPOINT" coverage source --json > coverage-smoke.json
-          node -e "const r=require('./coverage-smoke.json'); if(r?.schemaVersion !== '0.1.0' || r?.verdict !== 'inventory-only') process.exit(1)"
+          node -e "const p=require('./source/package.json'); const r=require('./coverage-smoke.json'); if(r?.schemaVersion !== p.version || r?.verdict !== 'inventory-only') process.exit(1)"
 
       - name: Generate coverage proof
         run: node scripts/generate-coverage-proof.mjs
