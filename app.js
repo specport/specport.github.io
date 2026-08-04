@@ -90,17 +90,17 @@
     const sourceInstallCommand = "git clone https://github.com/specport/specport.git specport; cd specport; npm ci --ignore-scripts --no-audit --no-fund; npm run build";
     const sourceCoverageCommand = "node dist/cli.js coverage";
     const quickStartCommand = published
-      ? "npx --yes @specport/specport@latest coverage"
-      : sourceCommand;
+      ? "npx --yes @specport/specport@latest spec create notes.md --out SPEC.md"
+      : `${sourceCommand}; cd specport; npm ci --ignore-scripts --no-audit --no-fund; npm run build; node dist/cli.js spec create notes.md --out SPEC.md`;
     const installCommand = published
       ? "npm install --save-dev @specport/specport"
       : sourceInstallCommand;
     const coverageCommand = published
       ? "npx --no-install specport coverage"
       : sourceCoverageCommand;
-    setText("[data-release-command-context]", published ? "Published package / exact npm version" : "Current source checkout / npm publication pending");
-    setAttribute("[data-release-command-box]", "aria-label", published ? "Run the published SpecPort package" : "Use the verified SpecPort source checkout");
-    setAttribute("[data-release-command-copy]", "aria-label", published ? "Copy the published SpecPort command" : "Copy the SpecPort source checkout command");
+    setText("[data-release-command-context]", published ? "Published package / notes → SPEC.md" : "Current source checkout / npm publication pending");
+    setAttribute("[data-release-command-box]", "aria-label", published ? "Turn notes into a SpecPort draft" : "Use the verified SpecPort source checkout to create a draft");
+    setAttribute("[data-release-command-copy]", "aria-label", published ? "Copy the notes-to-spec command" : "Copy the SpecPort source checkout command");
     setAttribute("[data-release-install-copy]", "aria-label", published ? "Copy the npm install command" : "Copy the source checkout command");
     setText("[data-release-command]", quickStartCommand);
     setCopyValue("[data-release-command-copy]", quickStartCommand);
@@ -110,8 +110,8 @@
     setCopyValue("[data-release-coverage-copy]", coverageCommand);
     setText("[data-release-install-title]", published ? "Install the published package" : "Use the current source checkout");
     setText("[data-release-qualifier]", published
-      ? "Starts as a final-tree inventory. Add an approved scope or pinned review for a fail-closed coverage verdict."
-      : "Then run cd specport; npm ci --ignore-scripts --no-audit --no-fund; npm run build; node dist/cli.js coverage. This source path is shown because the current package version is not published.");
+      ? "Creates a deterministic draft; inspect it, add human decisions, then run the structural check."
+      : "Then run the built CLI to create a draft. This source path is shown because the current package version is not published.");
     setText("[data-release-status]", status);
     setText("[data-release-version]", release.version);
     setText("[data-release-license]", release.license);
@@ -242,7 +242,14 @@
       createLink("View spec", shareUrl, "button button-primary"),
       createLink("Open source", resolved.sourceUrl, "button button-secondary", true),
     );
+    const agentPrompt = route.kind === "gist"
+      ? createCodingAgentPrompt(shareUrl, resolved, model)
+      : null;
+    if (agentPrompt) {
+      actions.append(createCopyButton(agentPrompt, "Copy coding-agent prompt"));
+    }
     panel.append(actions);
+    if (agentPrompt) panel.append(createAgentPromptPreview(agentPrompt));
 
     const preview = createElement("div", "share-preview");
     preview.append(createElement("p", "share-preview-label", "What the page will show"));
@@ -256,6 +263,49 @@
     root.hidden = false;
     root.append(panel);
     wireCopyButtons(root);
+  }
+
+  function createCodingAgentPrompt(shareUrl, resolved, model) {
+    return [
+      "/goal",
+      "",
+      "Implement the product defined by this SpecPort handoff and prove the result with evidence.",
+      "",
+      "SPEC ENTRY POINT",
+      "SpecPort share URL: " + shareUrl,
+      "Exact GitHub Gist source: " + resolved.sourceUrl,
+      "Spec title: " + model.title,
+      "",
+      "WORKFLOW",
+      "1. Install the published SpecPort CLI in the target repository:",
+      "   npm install --save-dev @specport/specport@latest",
+      "2. Pull and read the complete spec from the SpecPort share URL above. Preserve its source identity and provenance; do not replace requirements with a summary. If the source cannot be fetched, stop and report the exact blocker.",
+      "3. Before coding, extract the outcome, non-goals, constraints, acceptance criteria, verification requirements, risks, and open decisions. Treat draft or unaccepted status as a human decision gate; do not invent approval or ship authority.",
+      "4. Implement the smallest vertical slice that satisfies the accepted scope. Preserve explicit safety, privacy, accessibility, failure, and rollback boundaries. Do not broaden the product or claim guarantees that are not evidenced.",
+      "5. Validate the implementation progressively:",
+      "   - npx --no-install specport spec check SPEC.md --json",
+      "   - run the repository's formatter, lint, typecheck, unit, integration, end-to-end, and build checks",
+      "   - npx --no-install specport coverage .",
+      "   - after human acceptance, create and check SPEC.lock with specport spec lock and specport spec drift",
+      "   - exercise the real user flow manually and preserve screenshots, logs, fixtures, and command output",
+      "6. Review for regressions, security and privacy issues, accessibility failures, stale documentation, performance problems, unsafe side effects, and incomplete failure handling. Re-run affected checks after every fix.",
+      "7. Report exact files changed, every command and result, runtime or manual evidence, known gaps, unresolved decisions, and whether the work is ready for human approval. Do not claim done from compilation, a passing unit test, or an agent summary alone.",
+    ].join("\n");
+  }
+
+  function createAgentPromptPreview(prompt) {
+    const details = createElement("details", "share-agent-prompt");
+    details.append(createElement("summary", "share-agent-prompt-summary", "Show the coding-agent handoff"));
+    const body = createElement("div", "share-agent-prompt-body");
+    body.append(
+      createElement("p", "share-preview-label", "COPY THIS PROMPT"),
+      createElement("p", "share-agent-prompt-intro", "Installs SpecPort, pulls this Gist-backed spec, implements the contract, and reports verification evidence."),
+    );
+    const code = createElement("pre", "share-agent-prompt-text", prompt);
+    code.tabIndex = 0;
+    body.append(code);
+    details.append(body);
+    return details;
   }
 
   function renderShareLink(root, route) {
