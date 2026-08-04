@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Turn a public GitHub Gist or repository root SPEC.md into a shareable SpecPort page."
+    />
+    <meta name="theme-color" content="#f4f2ec" />
+    <meta property="og:title" content="Share spec · SpecPort" />
+    <meta
+      property="og:description"
+      content="Find a public Gist or repository SPEC.md and generate one readable SpecPort link."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://specport.github.io/share-spec.html" />
+    <meta property="og:image" content="https://specport.github.io/og-image.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Share spec · SpecPort</title>
+    <link rel="canonical" href="https://specport.github.io/share-spec.html" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./share-spec.css" />
+  </head>
+  <body data-view="share-spec" class="share-spec-page">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <header class="site-header">
+      <div class="header-shell">
+        <a class="brand" href="./" aria-label="SpecPort home">
+          <img src="./logo.svg" alt="SpecPort" width="132" height="34" />
+        </a>
+        <nav class="primary-nav" aria-label="Share spec navigation">
+          <a href="./">SpecPort home</a>
+          <a href="#how-it-works">How it works</a>
+          <a class="nav-source" href="https://github.com/specport/specport">
+            GitHub <span aria-hidden="true">↗</span>
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="share-hero page-shell" aria-labelledby="share-title">
+        <div class="share-hero-copy">
+          <p class="product-label">
+            <span class="signal-dot" aria-hidden="true"></span>
+            Share spec
+          </p>
+          <h1 id="share-title">Give an idea one clear address.</h1>
+          <p class="share-hero-lede">
+            Paste a public GitHub Gist or repository. SpecPort finds the source,
+            keeps it read-only, and creates a link people can open as a visual spec.
+          </p>
+        </div>
+        <aside class="share-hero-note">
+          <p class="share-note-label">SOURCE CONTRACT</p>
+          <h2>Root SPEC.md is the handoff.</h2>
+          <p>
+            Repositories must expose <code>SPEC.md</code> at the root. Gists prefer
+            a root <code>SPEC.md</code> and preserve the existing readable-file fallback.
+          </p>
+        </aside>
+      </section>
+
+      <section class="share-workbench page-shell" aria-labelledby="source-title">
+        <div class="share-form-column">
+          <div class="share-section-heading">
+            <p class="section-label">01 / Find source</p>
+            <h2 id="source-title">Paste a Gist or repository URL.</h2>
+          </div>
+          <form data-share-form class="share-form">
+            <label for="share-source">GitHub source</label>
+            <div class="share-input-row">
+              <input
+                id="share-source"
+                data-share-input
+                name="source"
+                type="text"
+                inputmode="url"
+                autocomplete="url"
+                spellcheck="false"
+                placeholder="gist.github.com/owner/id or github.com/owner/repo"
+                aria-describedby="share-source-help"
+                required
+              />
+              <button class="button button-primary" type="submit">Find SPEC.md</button>
+            </div>
+            <p id="share-source-help" class="share-help">
+              Public sources only. GitHub access stays in your browser; SpecPort does not receive the source.
+            </p>
+            <p data-share-status class="share-status" role="status" aria-live="polite">
+              Waiting for a source link.
+            </p>
+          </form>
+
+          <div class="share-examples">
+            <p class="share-examples-label">Try the working example</p>
+            <button
+              class="share-example"
+              type="button"
+              data-share-example
+              data-share-value="https://gist.github.com/stancsz/61a2777a086ae76b94106745bda85102"
+            >
+              <span>Gist</span>
+              <code>stancsz/61a2777a086ae76b94106745bda85102</code>
+            </button>
+          </div>
+        </div>
+
+        <aside id="how-it-works" class="share-how-card" aria-labelledby="how-title">
+          <p class="share-note-label">HOW IT WORKS</p>
+          <h2 id="how-title">One source. One route. No rewrite.</h2>
+          <ol class="share-how-list">
+            <li><span>01</span><strong>Detect</strong><p>Gist IDs and repository URLs are validated locally.</p></li>
+            <li><span>02</span><strong>Pull</strong><p>GitHub's public API returns the root text source.</p></li>
+            <li><span>03</span><strong>Share</strong><p>A stable SpecPort URL opens the same read-only visualization.</p></li>
+          </ol>
+        </aside>
+      </section>
+
+      <section class="share-result-shell page-shell" aria-labelledby="result-title">
+        <div class="share-section-heading">
+          <p class="section-label">02 / Generate link</p>
+          <h2 id="result-title">Your share result.</h2>
+        </div>
+        <div data-share-result class="share-result" hidden></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-shell">
+        <a class="brand" href="./" aria-label="Back to SpecPort home">
+          <img src="./logo.svg" alt="SpecPort" width="132" height="34" />
+        </a>
+        <nav aria-label="Footer navigation">
+          <a href="./">SpecPort home</a>
+          <a href="https://github.com/specport/specport#readme">Documentation</a>
+          <a href="https://github.com/specport/specport/blob/main/SECURITY.md">Security</a>
+          <a href="https://www.npmjs.com/package/@specport/specport">npm package</a>
+        </nav>
+        <p class="footer-build">Share spec · GitHub GET only</p>
+      </div>
+    </footer>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>

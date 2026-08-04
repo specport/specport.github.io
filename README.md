@@ -11,8 +11,12 @@ secondary workflow depth, and the public spec network remains labeled future.
 
 ## Share a text idea as a visual spec
 
-Any shareable GitHub Gist with a readable text or Markdown file can be opened as
-a SpecPort page by keeping the Gist owner and id after the site origin:
+The [Share spec page](https://specport.github.io/share-spec.html) accepts a
+public GitHub Gist or repository URL and generates a stable SpecPort link.
+Repositories must expose `SPEC.md` at their root; Gists prefer a root
+`SPEC.md` and preserve the existing readable-file fallback.
+
+Gist links keep the owner and id after the site origin:
 
 ```text
 https://specport.github.io/<gist-owner>/<gist-id>
@@ -31,6 +35,16 @@ summary, key lists, source outline, and raw source. The raw source is rendered
 as text, not executed or interpreted as HTML. Secret Gists are supported when
 the link is enough for GitHub to return them; private or deleted Gists that
 require credentials are not.
+
+Repository links use a separate namespace:
+
+```text
+https://specport.github.io/repo/<github-owner>/<repository>
+```
+
+The repository page fetches only the public root `SPEC.md` through GitHub's
+unauthenticated Contents API. Both source types use the same read-only
+visualization and generated share-link controls.
 
 The deep-link fallback is static-host compatible: GitHub Pages serves
 `404.html`, which preserves the original path while the browser loads the

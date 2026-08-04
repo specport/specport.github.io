@@ -1,5 +1,6 @@
 (() => {
   const isSpecRoute = document.body?.dataset.view === "spec";
+  const isShareSpecPage = document.body?.dataset.view === "share-spec";
 
   const copyText = async (value) => {
     if (navigator.clipboard?.writeText) {
@@ -52,6 +53,11 @@
       const root = document.querySelector("[data-spec-route-root]");
       if (root) renderSpecError(root, null, error);
     });
+    return;
+  }
+
+  if (isShareSpecPage) {
+    initShareSpecPage();
     return;
   }
 
@@ -120,24 +126,146 @@
       document.documentElement.dataset.proofMetadata = "unavailable";
     });
 
+  function initShareSpecPage() {
+    const form = document.querySelector("[data-share-form]");
+    const input = document.querySelector("[data-share-input]");
+    const status = document.querySelector("[data-share-status]");
+    const result = document.querySelector("[data-share-result]");
+    if (!form || !input || !status || !result) return;
+
+    const setStatus = (message, state = "idle") => {
+      status.textContent = message;
+      status.dataset.state = state;
+    };
+
+    const lookup = async (value) => {
+      result.hidden = true;
+      result.replaceChildren();
+      setStatus("Checking the source and looking for a root SPEC.md…", "loading");
+      try {
+        const { parseShareInput, parseSpecSource } = await import("/spec-model.mjs");
+        const route = parseShareInput(value);
+        if (!["gist", "repo"].includes(route.kind)) throw createSpecError("route_error", route.reason);
+        const resolved = await resolveSpecSource(route);
+        const model = parseSpecSource(resolved.sourceText, resolved.filename);
+        renderShareResult(result, route, resolved, model);
+        setStatus("Ready — your share link is generated.", "ready");
+      } catch (error) {
+        renderShareError(result, error);
+        setStatus(error?.message || "The source could not be opened.", "error");
+      }
+    };
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      lookup(input.value);
+    });
+    for (const example of document.querySelectorAll("[data-share-example]")) {
+      example.addEventListener("click", () => {
+        const value = example.getAttribute("data-share-value") || "";
+        input.value = value;
+        lookup(value);
+      });
+    }
+
+    const initialSource = new URLSearchParams(window.location.search).get("source");
+    if (initialSource) {
+      input.value = initialSource;
+      lookup(initialSource);
+    }
+  }
+
+  function renderShareResult(root, route, resolved, model) {
+    const shareUrl = new URL(route.canonicalPath, window.location.origin).href;
+    const panel = createElement("section", "share-result-panel");
+    panel.append(
+      createElement("p", "section-label", "Ready to share"),
+      createElement("h2", "share-result-title", model.title),
+      createElement("p", "share-result-summary", model.summary),
+    );
+
+    const details = createElement("div", "share-result-details");
+    details.append(
+      createShareDetail("SOURCE", resolved.sourceLabel),
+      createShareDetail("TYPE", resolved.visibility),
+      createShareDetail("SIZE", `${model.sourceLineCount} lines · ${model.wordCount} words`),
+    );
+    panel.append(details);
+
+    const linkBox = createElement("div", "share-link-box");
+    linkBox.append(createElement("p", "share-link-label", "Generated SpecPort link"));
+    const linkRow = createElement("div", "share-link-row");
+    const linkInput = createElement("input", "share-link-input");
+    linkInput.type = "text";
+    linkInput.value = shareUrl;
+    linkInput.readOnly = true;
+    linkInput.setAttribute("aria-label", "Generated SpecPort share link");
+    linkRow.append(linkInput, createCopyButton(shareUrl, "Copy link"));
+    linkBox.append(linkRow);
+    panel.append(linkBox);
+
+    const actions = createElement("div", "share-result-actions");
+    actions.append(
+      createLink("View spec", shareUrl, "button button-primary"),
+      createLink("Open source", resolved.sourceUrl, "button button-secondary", true),
+    );
+    panel.append(actions);
+
+    const preview = createElement("div", "share-preview");
+    preview.append(createElement("p", "share-preview-label", "What the page will show"));
+    const previewGrid = createElement("div", "share-preview-grid");
+    previewGrid.append(
+      createSharePreview("Key features", model.keyFeatures, "The strongest list-shaped signals."),
+      createSharePreview("Recommended path", model.flow, "The first ordered sequence."),
+    );
+    preview.append(previewGrid);
+    panel.append(preview, createElement("p", "share-result-note", resolved.sourceNote));
+    root.hidden = false;
+    root.append(panel);
+    wireCopyButtons(root);
+  }
+
+  function createShareDetail(label, value) {
+    const detail = createElement("div", "share-result-detail");
+    detail.append(createElement("span", "share-result-detail-label", label), createElement("strong", "share-result-detail-value", value));
+    return detail;
+  }
+
+  function createSharePreview(title, items, fallback) {
+    const preview = createElement("article", "share-preview-card");
+    preview.append(createElement("h3", "share-preview-title", title));
+    if (items.length) preview.append(createList(items.slice(0, 3), "share-preview-list"));
+    else preview.append(createElement("p", "share-preview-fallback", fallback));
+    return preview;
+  }
+
+  function renderShareError(root, error) {
+    root.hidden = false;
+    root.replaceChildren();
+    const panel = createElement("section", "share-result-panel share-result-error");
+    panel.append(
+      createElement("p", "section-label", "Could not open source"),
+      createElement("h2", "share-result-title", "No share link yet."),
+      createElement("p", "share-result-summary", error?.message || "Check the URL and try again."),
+    );
+    root.append(panel);
+  }
+
   async function renderSpecRoute() {
     const root = document.querySelector("[data-spec-route-root]");
     if (!root) throw new Error("The spec route shell is missing.");
-    const { parseGistRoute, parseSpecSource } = await import("/spec-model.mjs");
+    const { parseShareRoute, parseSpecSource } = await import("/spec-model.mjs");
     const developmentRoute = window.location.pathname.endsWith("/404.html")
       ? new URLSearchParams(window.location.search).get("route")
       : null;
-    const route = parseGistRoute(developmentRoute || window.location.pathname);
-    if (route.kind !== "gist") {
+    const route = parseShareRoute(developmentRoute || window.location.pathname);
+    if (!["gist", "repo"].includes(route.kind)) {
       renderSpecError(root, route, new Error(route.reason || "This is not a shared spec link."));
       return;
     }
     document.title = "Loading shared spec · SpecPort";
-    const gist = await fetchGist(route.gistId);
-    const file = selectSpecFile(gist.files);
-    if (!file) throw createSpecError("non_text", "This Gist does not contain a readable text or Markdown file.");
-    const source = await readGistFile(file);
-    renderSpecPage(root, route, gist, file, parseSpecSource(source, file.filename || "SPEC.md"));
+    const resolved = await resolveSpecSource(route);
+    renderSpecPage(root, route, resolved, parseSpecSource(resolved.sourceText, resolved.filename));
   }
 
   async function fetchGist(gistId) {
@@ -152,7 +280,7 @@
 
   async function readGistFile(file) {
     if (typeof file.content === "string" && !file.truncated) return file.content;
-    if (typeof file.raw_url !== "string" || !isAllowedRawUrl(file.raw_url)) throw createSpecError("unsafe_redirect", "The selected source file is not a permitted GitHub Gist file.");
+    if (typeof file.raw_url !== "string" || !isAllowedSourceUrl(file.raw_url, ["gist.githubusercontent.com"])) throw createSpecError("unsafe_redirect", "The selected source file is not a permitted GitHub Gist file.");
     const response = await fetchWithTimeout(file.raw_url, { headers: { Accept: "text/plain" } });
     if (!response.ok) throw await responseError(response, "source");
     return response.text();
@@ -160,7 +288,8 @@
 
   function selectSpecFile(files) {
     if (!files || typeof files !== "object") return null;
-    return Object.values(files).filter((file) => file && typeof file === "object").find(isTextFile) || null;
+    const candidates = Object.values(files).filter((file) => file && typeof file === "object");
+    return candidates.find((file) => file.filename === "SPEC.md" && isTextFile(file)) || candidates.find(isTextFile) || null;
   }
 
   function isTextFile(file) {
@@ -169,13 +298,83 @@
     return type.startsWith("text/") || /(?:^|\.)(?:md|markdown|txt|text|rst|json|ya?ml|toml|xml|html|css|js|ts|tsx|jsx|py|sh)$/i.test(filename);
   }
 
-  function isAllowedRawUrl(value) {
+  function isAllowedSourceUrl(value, allowedHosts) {
     try {
       const url = new URL(value);
-      return url.protocol === "https:" && (url.hostname === "gist.githubusercontent.com" || url.hostname.endsWith(".gist.githubusercontent.com"));
+      return url.protocol === "https:" && allowedHosts.includes(url.hostname);
     } catch {
       return false;
     }
+  }
+
+  async function fetchRepositorySpec(route) {
+    const response = await fetchWithTimeout(
+      `https://api.github.com/repos/${encodeURIComponent(route.owner)}/${encodeURIComponent(route.repository)}/contents/SPEC.md`,
+      { headers: { Accept: "application/vnd.github+json" } },
+    );
+    if (!response.ok) throw await responseError(response, "repository");
+    let file;
+    try {
+      file = await response.json();
+    } catch {
+      throw createSpecError("parse_error", "GitHub returned an unreadable repository response.");
+    }
+    if (!file || Array.isArray(file) || file.type !== "file" || file.name !== "SPEC.md") {
+      throw createSpecError("non_text", "This repository does not expose a root SPEC.md file.");
+    }
+    return file;
+  }
+
+  async function readRepositoryFile(file) {
+    if (typeof file.content === "string" && file.encoding === "base64") {
+      try {
+        return decodeBase64Utf8(file.content);
+      } catch {
+        throw createSpecError("parse_error", "The repository SPEC.md could not be decoded.");
+      }
+    }
+    if (typeof file.download_url !== "string" || !isAllowedSourceUrl(file.download_url, ["raw.githubusercontent.com"])) {
+      throw createSpecError("unsafe_redirect", "The repository source is not a permitted GitHub raw file.");
+    }
+    const response = await fetchWithTimeout(file.download_url, { headers: { Accept: "text/plain" } });
+    if (!response.ok) throw await responseError(response, "source");
+    return response.text();
+  }
+
+  function decodeBase64Utf8(value) {
+    const binary = window.atob(String(value).replace(/\s+/g, ""));
+    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  }
+
+  async function resolveSpecSource(route) {
+    if (route.kind === "gist") {
+      const gist = await fetchGist(route.gistId);
+      const file = selectSpecFile(gist.files);
+      if (!file) throw createSpecError("non_text", "This Gist does not contain a readable text or Markdown file.");
+      return {
+        sourceText: await readGistFile(file),
+        filename: file.filename || "SPEC.md",
+        sourceLabel: file.filename || "SPEC.md",
+        sourceUrl: canonicalGistUrl(gist, route),
+        visibility: gist.public === false ? "SECRET GIST" : "PUBLIC GIST",
+        updatedAt: gist.updated_at,
+        sourceNote: file.filename === "SPEC.md"
+          ? "The root SPEC.md is shown as data. SpecPort does not rewrite the source or send it to a SpecPort service."
+          : "The first readable Gist file is shown as data. SpecPort does not rewrite the source or send it to a SpecPort service.",
+      };
+    }
+
+    const file = await fetchRepositorySpec(route);
+    return {
+      sourceText: await readRepositoryFile(file),
+      filename: "SPEC.md",
+      sourceLabel: `${route.owner}/${route.repository}/SPEC.md`,
+      sourceUrl: canonicalRepositorySpecUrl(file, route),
+      visibility: "PUBLIC REPOSITORY",
+      updatedAt: null,
+      sourceNote: "The repository root SPEC.md is shown as data. SpecPort does not rewrite the source or send it to a SpecPort service.",
+    };
   }
 
   async function fetchWithTimeout(url, options = {}) {
@@ -193,7 +392,11 @@
 
   async function responseError(response, resource) {
     if (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0") return createSpecError("rate_limited", "GitHub is rate limiting this browser. Try again later.");
-    if (response.status === 404) return createSpecError("not_found", resource === "gist" ? "This Gist is not reachable from the public web. It may be private, deleted, or the link may be wrong." : "The first source file is no longer available from GitHub.");
+    if (response.status === 404) {
+      if (resource === "gist") return createSpecError("not_found", "This Gist is not reachable from the public web. It may be private, deleted, or the link may be wrong.");
+      if (resource === "repository") return createSpecError("not_found", "This repository is not reachable from the public web, or it does not contain a root SPEC.md file.");
+      return createSpecError("not_found", "The source file is no longer available from GitHub.");
+    }
     return createSpecError("fetch_error", `GitHub returned HTTP ${response.status} for this ${resource}.`);
   }
 
@@ -203,12 +406,10 @@
     return error;
   }
 
-  function renderSpecPage(root, route, gist, file, model) {
+  function renderSpecPage(root, route, resolved, model) {
     root.replaceChildren();
     document.body.classList.add("spec-page");
-    const visibility = gist.public === false ? "SECRET GIST" : "PUBLIC GIST";
-    const gistUrl = canonicalGistUrl(gist, route);
-    const sourceLabel = file.filename || "SPEC.md";
+    const { sourceLabel, sourceUrl, visibility } = resolved;
     const page = createElement("div", "spec-page-content");
     const hero = createElement("section", "spec-hero page-shell");
     const heroCopy = createElement("div", "spec-hero-copy");
@@ -224,8 +425,8 @@
     }
     heroCopy.append(meta);
     const actions = createElement("div", "spec-actions");
-    actions.append(createLink("Back to SpecPort", "/", "button button-primary"), createCopyButton(window.location.href, "Copy share link"), createLink("Open source Gist", gistUrl, "button button-secondary", true));
-    heroCopy.append(actions, createElement("p", "spec-source-note", "The first readable file is shown as data. SpecPort does not rewrite the source or send it to a SpecPort service."));
+    actions.append(createLink("Back to SpecPort", "/", "button button-primary"), createCopyButton(window.location.href, "Copy share link"), createLink("Open source", sourceUrl, "button button-secondary", true));
+    heroCopy.append(actions, createElement("p", "spec-source-note", resolved.sourceNote));
     const sourceCard = createElement("aside", "spec-source-card");
     sourceCard.append(createElement("p", "receipt-kicker", "Source map"), createElement("h2", "spec-source-card-title", "From idea to handoff."), createElement("p", "spec-source-card-copy", "A deterministic view of what the file declares—not a generated product claim."));
     hero.append(heroCopy, sourceCard);
@@ -289,7 +490,7 @@
     page.append(createElement("p", "spec-boundary section-shell", "Parsed from the exact first text file returned by GitHub. The visualization is a reading aid, not an approval, implementation, or ship decision."));
     root.append(page);
     wireCopyButtons(root);
-    updateSpecMetadata(model, route, gist, sourceLabel, gistUrl, visibility);
+    updateSpecMetadata(model, route, resolved);
   }
 
   function renderSpecError(root, route, error) {
@@ -308,11 +509,13 @@
     const actions = createElement("div", "spec-actions");
     actions.append(createLink("Back to SpecPort", "/", "button button-primary"));
     if (route?.kind === "gist") actions.append(createLink("Open source Gist", `https://gist.github.com/${encodeURIComponent(route.owner)}/${route.gistId}`, "button button-secondary", true));
-    section.append(actions, createElement("p", "spec-source-note", "Only a GitHub Gist that the browser can fetch without credentials can be shared this way. Check the owner, id, and Gist visibility."));
+    if (route?.kind === "repo") actions.append(createLink("Open GitHub repository", `https://github.com/${encodeURIComponent(route.owner)}/${encodeURIComponent(route.repository)}`, "button button-secondary", true));
+    section.append(actions, createElement("p", "spec-source-note", "Only public GitHub sources that the browser can fetch without credentials can be shared this way. Check the link and make sure the source contains a root SPEC.md."));
     root.append(section);
   }
 
-  function updateSpecMetadata(model, route, gist, sourceLabel, gistUrl, visibility) {
+  function updateSpecMetadata(model, route, resolved) {
+    const { sourceLabel, sourceUrl, visibility, updatedAt } = resolved;
     const title = `${model.title} · SpecPort`;
     const description = `${model.summary} Shared from ${sourceLabel}.`;
     document.title = title;
@@ -330,8 +533,9 @@
     }
     canonical.href = `${window.location.origin}${route.canonicalPath}`;
     document.documentElement.dataset.specVisibility = visibility.toLowerCase().replace(/\s+/g, "-");
-    document.documentElement.dataset.specSource = gistUrl;
-    if (gist.updated_at) document.documentElement.dataset.specUpdated = gist.updated_at;
+    document.documentElement.dataset.specSource = sourceUrl;
+    document.documentElement.dataset.specKind = route.kind;
+    if (updatedAt) document.documentElement.dataset.specUpdated = updatedAt;
   }
 
   function canonicalGistUrl(gist, route) {
@@ -345,6 +549,18 @@
     }
     const owner = typeof gist?.owner?.login === "string" ? gist.owner.login : route.owner;
     return `https://gist.github.com/${encodeURIComponent(owner)}/${route.gistId}`;
+  }
+
+  function canonicalRepositorySpecUrl(file, route) {
+    if (typeof file?.html_url === "string") {
+      try {
+        const url = new URL(file.html_url);
+        if (url.protocol === "https:" && url.hostname === "github.com") return url.href;
+      } catch {
+        // Fall through to the stable repository source path.
+      }
+    }
+    return `https://github.com/${encodeURIComponent(route.owner)}/${encodeURIComponent(route.repository)}/blob/main/SPEC.md`;
   }
 
   function setMeta(key, value, attribute = "name") {

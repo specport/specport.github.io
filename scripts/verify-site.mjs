@@ -1,14 +1,16 @@
 import { access, readFile } from 'node:fs/promises';
 import { dirname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseGistRoute, parseSpecSource } from '../spec-model.mjs';
+import { parseGistRoute, parseRepoRoute, parseShareInput, parseShareRoute, parseSpecSource } from '../spec-model.mjs';
 
 const siteRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const requiredFiles = [
   'index.html',
+  'share-spec.html',
   '404.html',
   'styles.css',
   'spec.css',
+  'share-spec.css',
   'app.js',
   'spec-model.mjs',
   'logo.svg',
@@ -28,12 +30,14 @@ for (const path of requiredFiles) {
   await access(join(siteRoot, path));
 }
 
-const [html, notFound, css, specCss, script, modelScript, workflow, releaseText, proofText, inputText] =
+const [html, shareHtml, notFound, css, specCss, shareCss, script, modelScript, workflow, releaseText, proofText, inputText] =
   await Promise.all([
     readFile(join(siteRoot, 'index.html'), 'utf8'),
+    readFile(join(siteRoot, 'share-spec.html'), 'utf8'),
     readFile(join(siteRoot, '404.html'), 'utf8'),
     readFile(join(siteRoot, 'styles.css'), 'utf8'),
     readFile(join(siteRoot, 'spec.css'), 'utf8'),
+    readFile(join(siteRoot, 'share-spec.css'), 'utf8'),
     readFile(join(siteRoot, 'app.js'), 'utf8'),
     readFile(join(siteRoot, 'spec-model.mjs'), 'utf8'),
     readFile(join(siteRoot, '.github', 'workflows', 'pages.yml'), 'utf8'),
@@ -106,6 +110,7 @@ const requiredHtml = [
   'SECURITY.md',
   'CONTRIBUTING.md',
   'id="privacy"',
+  'href="./share-spec.html"',
 ];
 for (const text of requiredHtml) {
   assert(html.includes(text), `index.html is missing required content: ${text}`);
@@ -129,14 +134,26 @@ assert(html.includes('class="skip-link"'), 'Page is missing a skip link.');
 assert(css.includes(':focus-visible'), 'CSS is missing a visible focus treatment.');
 assert(css.includes('prefers-reduced-motion'), 'CSS is missing reduced-motion handling.');
 assert(css.includes('@media (max-width: 760px)'), 'CSS is missing the primary mobile layout.');
+assert(shareHtml.includes('data-view="share-spec"'), 'Share spec page is missing its view marker.');
+assert(shareHtml.includes('data-share-form'), 'Share spec page is missing its source form.');
+assert(shareHtml.includes('data-share-input'), 'Share spec page is missing its source input.');
+assert(shareHtml.includes('data-share-result'), 'Share spec page is missing its result root.');
+assert(shareCss.includes('.share-hero') && shareCss.includes('.share-result-panel'), 'Share spec stylesheet is missing core page treatments.');
 assert(!script.includes('.innerHTML'), 'JavaScript must not assign fetched data with innerHTML.');
 assert(!script.includes('document.write'), 'JavaScript must not write fetched content into the document stream.');
 assert(!script.includes('insertAdjacentHTML'), 'JavaScript must not inject fetched content as HTML.');
 assert(script.includes('https://api.github.com/gists/'), 'JavaScript is missing the GitHub Gist route fetch.');
+assert(script.includes('https://api.github.com/repos/'), 'JavaScript is missing the GitHub repository SPEC.md fetch.');
+assert(script.includes('parseShareInput'), 'JavaScript is missing Share spec input detection.');
+assert(script.includes('root SPEC.md'), 'JavaScript must explain the repository root SPEC.md contract.');
 assert(script.includes('credentials: "omit"'), 'Gist fetches must omit browser credentials.');
 assert(script.includes('import("/spec-model.mjs")'), 'Deep-link route must load the parser from the site root.');
 assert(script.includes('canonicalGistUrl'), 'Rendered source links must use the Gist API canonical URL.');
+assert(!script.includes('eval('), 'JavaScript must not evaluate source content.');
 assert(modelScript.includes('export function parseGistRoute'), 'Spec model is missing route parsing.');
+assert(modelScript.includes('export function parseRepoRoute'), 'Spec model is missing repository route parsing.');
+assert(modelScript.includes('export function parseShareRoute'), 'Spec model is missing shared route parsing.');
+assert(modelScript.includes('export function parseShareInput'), 'Spec model is missing source input parsing.');
 assert(modelScript.includes('export function parseSpecSource'), 'Spec model is missing deterministic parsing.');
 assert(!modelScript.includes('.innerHTML'), 'Spec model must not render HTML from source text.');
 assert(notFound.includes('data-view="spec"'), '404 fallback is missing the spec route marker.');
@@ -148,6 +165,13 @@ assert(specCss.includes('.spec-map') && specCss.includes('.spec-source-code'), '
 const validRoute = parseGistRoute('/stancsz/61a2777a086ae76b94106745bda85102/');
 assert(validRoute.kind === 'gist' && validRoute.gistId === '61a2777a086ae76b94106745bda85102', 'Gist route parser changed.');
 assert(parseGistRoute('/not-a-gist')?.kind === 'invalid', 'Invalid share routes must fail closed.');
+const validRepoRoute = parseShareRoute('/repo/specport/specport/');
+assert(validRepoRoute.kind === 'repo' && validRepoRoute.owner === 'specport' && validRepoRoute.repository === 'specport', 'Repository route parser changed.');
+assert(parseRepoRoute('/repo/specport/specport')?.kind === 'repo', 'Repository parser failed.');
+assert(parseShareRoute('/repo/61a2777a086ae76b94106745bda85102')?.kind === 'gist', 'Gist owners named repo must remain addressable.');
+assert(parseShareInput('https://github.com/specport/specport')?.kind === 'repo', 'Repository URL input parser failed.');
+assert(parseShareInput('specport/specport')?.kind === 'repo', 'Bare repository input parser failed.');
+assert(parseShareInput('https://gist.github.com/stancsz/61a2777a086ae76b94106745bda85102')?.kind === 'gist', 'Gist URL input parser failed.');
 const parsedFixture = parseSpecSource('# Demo\n\nA short idea.\n\n## Features\n\n- One thing\n\n## User flow\n\n1. Start\n');
 assert(parsedFixture.title === 'Demo' && parsedFixture.keyFeatures[0] === 'One thing', 'Spec parser fixture failed.');
 assert(parsedFixture.flow[0] === 'Start', 'Spec parser did not preserve ordered steps.');
@@ -206,8 +230,10 @@ assert(
 assert(
   workflow.includes('404.html') &&
     workflow.includes('spec.css') &&
-    workflow.includes('spec-model.mjs'),
-  'Pages artifact must include the deep-link route files.',
+    workflow.includes('spec-model.mjs') &&
+    workflow.includes('share-spec.html') &&
+    workflow.includes('share-spec.css'),
+  'Pages artifact must include the spec route and Share spec page files.',
 );
 assert(
   workflow.includes('node scripts/verify-site.mjs'),
@@ -222,5 +248,5 @@ assert(
 );
 
 console.log(
-  `site_verify_ok files=${requiredFiles.length} localLinks=${localLinkCount} version=${release.version} proof=${result.coverage} deep_links=ready`,
+  `site_verify_ok files=${requiredFiles.length} localLinks=${localLinkCount} version=${release.version} proof=${result.coverage} deep_links=ready share_page=ready`,
 );
