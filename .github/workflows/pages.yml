@@ -63,8 +63,9 @@ jobs:
           PUBLISHED_ENTRYPOINT="./package-smoke/node_modules/@specport/specport/dist/cli.js"
           # Equivalent user-facing command: specport coverage source --json
           echo "expected_version=$VERSION"
-          echo "reported_version=$(node \"$PUBLISHED_ENTRYPOINT\" --version)"
-          test "$(node \"$PUBLISHED_ENTRYPOINT\" --version)" = "$VERSION"
+          REPORTED_VERSION="$(node "$PUBLISHED_ENTRYPOINT" --version)"
+          echo "reported_version=$REPORTED_VERSION"
+          test "$REPORTED_VERSION" = "$VERSION"
           node "$PUBLISHED_ENTRYPOINT" coverage source --json > coverage-smoke.json
           node -e "const r=require('./coverage-smoke.json'); if(r?.schemaVersion !== '0.1.0' || r?.verdict !== 'inventory-only') process.exit(1)"
 
