@@ -1,15 +1,15 @@
 {
   "name": "@specport/specport",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "MIT",
   "engine": ">=20",
-  "bin": "specport",
+  "bin": "spec",
   "repository": "https://github.com/specport/specport",
   "homepage": "https://specport.github.io/",
   "publicationStatus": "PUBLISHED",
-  "registryVersion": "0.1.1",
-  "registryTarball": "https://registry.npmjs.org/@specport/specport/-/specport-0.1.1.tgz",
-  "deploymentStatus": "SOURCE / VERIFY AFTER DEPLOY",
+  "registryVersion": "0.1.2",
+  "registryTarball": "https://registry.npmjs.org/@specport/specport/-/specport-0.1.2.tgz",
+  "deploymentStatus": "PAGES / VERIFY AFTER DEPLOY",
   "commit": "local checkout",
   "source": "canonical public repository + package.json + registry.npmjs.org"
 }
