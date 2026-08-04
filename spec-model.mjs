@@ -9,21 +9,92 @@ const CONSTRAINT_PATTERNS = [/constraint/, /guard/, /avoid/, /safety/, /privacy/
 const ACCEPTANCE_PATTERNS = [/accept/, /success/, /criteria/, /verif/, /test/, /listen/, /decision rule/];
 
 export function parseGistRoute(pathname) {
+  const parsed = readPath(pathname);
+  if (parsed.error) return parsed.error;
+  if (parsed.segments.length === 0) return { kind: 'home' };
+  return makeGistRoute(parsed.segments);
+}
+
+export function parseRepoRoute(pathname) {
+  const parsed = readPath(pathname);
+  if (parsed.error) return parsed.error;
+  if (parsed.segments.length === 0) return { kind: 'invalid', reason: 'A repository spec link must look like /repo/owner/repository.' };
+  return makeRepoRoute(parsed.segments);
+}
+
+export function parseShareRoute(pathname) {
+  const parsed = readPath(pathname);
+  if (parsed.error) return parsed.error;
+  if (parsed.segments.length === 0) return { kind: 'home' };
+  return parsed.segments.length !== 2 && parsed.segments[0].toLowerCase() === 'repo'
+    ? makeRepoRoute(parsed.segments)
+    : makeGistRoute(parsed.segments);
+}
+
+export function parseShareInput(input) {
+  const value = String(input ?? '').trim();
+  if (!value) return { kind: 'invalid', reason: 'Paste a GitHub Gist or repository URL.' };
+
+  if (value.startsWith('/')) return parseShareRoute(value);
+
+  if (!value.includes('://')) {
+    const bareSegments = value.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+    if (bareSegments.length === 2) {
+      const normalizedName = bareSegments[1].replace(/\.git$/iu, '');
+      if (/^[a-f0-9]{32}$/i.test(normalizedName)) return makeGistRoute(bareSegments);
+      return makeRepoRoute(['repo', bareSegments[0], normalizedName]);
+    }
+  }
+
+  let url;
+  try {
+    url = new URL(/^[a-z][a-z\d+.-]*:\/\//iu.test(value) ? value : `https://${value}`);
+  } catch {
+    return { kind: 'invalid', reason: 'Use a GitHub Gist URL, a GitHub repository URL, or owner/repository.' };
+  }
+
+  const host = url.hostname.toLowerCase();
+  if (host === 'gist.github.com') return parseGistRoute(url.pathname);
+  if (host === 'github.com') {
+    const segments = url.pathname.split('/').filter(Boolean);
+    if (segments.length !== 2) return { kind: 'invalid', reason: 'Use the repository root URL; SpecPort looks for /SPEC.md there.' };
+    const repository = segments[1].replace(/\.git$/iu, '');
+    return makeRepoRoute(['repo', segments[0], repository]);
+  }
+  if (host === 'specport.github.io') return parseShareRoute(url.pathname);
+  return { kind: 'invalid', reason: 'Only gist.github.com, github.com, and specport.github.io links are supported.' };
+}
+
+function readPath(pathname) {
   const rawPath = typeof pathname === 'string' ? pathname.split(/[?#]/, 1)[0] : '/';
   let decodedPath;
   try {
     decodedPath = decodeURIComponent(rawPath || '/');
   } catch {
-    return { kind: 'invalid', reason: 'The share link contains invalid URL encoding.' };
+    return { error: { kind: 'invalid', reason: 'The share link contains invalid URL encoding.' } };
   }
-  const segments = decodedPath.split('/').filter(Boolean);
-  if (segments.length === 0) return { kind: 'home' };
-  if (segments.length !== 2) return { kind: 'invalid', reason: 'A shared spec link must look like /owner/gist-id.' };
+  return { segments: decodedPath.split('/').filter(Boolean) };
+}
+
+function makeGistRoute(segments) {
+  if (segments.length !== 2) return { kind: 'invalid', reason: 'A shared Gist link must look like /owner/gist-id.' };
   const [owner, gistId] = segments;
   const validOwner = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/.test(owner);
   const validGistId = /^[a-f0-9]{32}$/i.test(gistId);
-  if (!validOwner || !validGistId) return { kind: 'invalid', reason: 'The share link needs a GitHub owner and a 32-character Gist id.' };
-  return { kind: 'gist', owner, gistId: gistId.toLowerCase(), canonicalPath: `/${owner}/${gistId.toLowerCase()}` };
+  if (!validOwner || !validGistId) return { kind: 'invalid', reason: 'The Gist link needs a GitHub owner and a 32-character Gist id.' };
+  const normalizedId = gistId.toLowerCase();
+  return { kind: 'gist', owner, gistId: normalizedId, canonicalPath: `/${owner}/${normalizedId}` };
+}
+
+function makeRepoRoute(segments) {
+  if (segments.length !== 3 || segments[0].toLowerCase() !== 'repo') {
+    return { kind: 'invalid', reason: 'A repository spec link must look like /repo/owner/repository.' };
+  }
+  const [, owner, repository] = segments;
+  const validOwner = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/.test(owner);
+  const validRepository = /^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,98}[A-Za-z0-9])?$/.test(repository);
+  if (!validOwner || !validRepository) return { kind: 'invalid', reason: 'The repository link needs a GitHub owner and repository name.' };
+  return { kind: 'repo', owner, repository, canonicalPath: `/repo/${owner}/${repository}` };
 }
 
 export function parseSpecSource(source, filename = 'SPEC.md') {

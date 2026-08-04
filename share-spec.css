@@ -1,0 +1,82 @@
+body.share-spec-page { background: #eeece6; }
+.share-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 430px); gap: clamp(48px, 8vw, 118px); align-items: center; min-height: 540px; padding-block: clamp(72px, 9vw, 120px); border-bottom: 1px solid var(--line-strong); }
+.share-hero-copy { max-width: 780px; }
+.share-hero-copy h1 { max-width: 720px; margin: 0; font-family: var(--font-display); font-size: clamp(3.25rem, 7vw, 6.8rem); font-weight: 620; letter-spacing: -0.075em; line-height: 0.94; }
+.share-hero-lede { max-width: 660px; margin: 28px 0 0; color: var(--ink-soft); font-size: clamp(1.08rem, 1.6vw, 1.34rem); line-height: 1.55; }
+.share-hero-note { position: relative; padding: 32px; color: #e7eef4; border: 1px solid #2c3e50; border-radius: var(--radius); background: var(--navy); box-shadow: var(--shadow-large); }
+.share-hero-note::before { position: absolute; top: 0; right: 0; width: 96px; height: 4px; content: ""; background: var(--orange); }
+.share-note-label, .share-examples-label, .share-result-detail-label, .share-link-label, .share-preview-label { margin: 0; color: var(--muted); font-family: var(--font-mono); font-size: 0.64rem; font-weight: 720; letter-spacing: 0.09em; line-height: 1.4; text-transform: uppercase; }
+.share-hero-note .share-note-label { color: #9bb0c1; }
+.share-hero-note h2, .share-how-card h2 { max-width: 360px; margin: 12px 0 0; color: #fff; font-family: var(--font-display); font-size: 2rem; font-weight: 600; letter-spacing: -0.045em; line-height: 1.05; }
+.share-hero-note p:last-child { margin: 24px 0 0; color: #b9c8d4; font-size: 0.86rem; line-height: 1.55; }
+.share-workbench { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.8fr); gap: 24px; padding-block: clamp(70px, 8vw, 112px); }
+.share-form-column, .share-how-card { min-width: 0; padding: clamp(26px, 4vw, 44px); border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-small); }
+.share-form-column { border-top: 4px solid var(--blue); }
+.share-section-heading { max-width: 720px; }
+.share-section-heading h2 { margin: 7px 0 0; font-family: var(--font-display); font-size: clamp(2rem, 3.7vw, 3.4rem); font-weight: 610; letter-spacing: -0.055em; line-height: 1.02; }
+.share-form { margin-top: 36px; }
+.share-form label { display: block; color: var(--ink-soft); font-size: 0.78rem; font-weight: 720; letter-spacing: 0.03em; }
+.share-input-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: stretch; margin-top: 9px; }
+.share-input-row input { width: 100%; min-width: 0; padding: 14px 15px; color: var(--ink); border: 1px solid var(--line-strong); border-radius: var(--radius-small); background: var(--surface-strong); font-family: var(--font-mono); font-size: 0.78rem; }
+.share-input-row input::placeholder { color: #8a8f95; }
+.share-input-row input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgb(23 86 201 / 15%); outline: 0; }
+.share-input-row .button { white-space: nowrap; }
+.share-help { max-width: 640px; margin: 12px 0 0; color: var(--muted); font-size: 0.76rem; line-height: 1.5; }
+.share-status { min-height: 25px; margin: 20px 0 0; color: var(--muted); font-size: 0.82rem; }
+.share-status[data-state="loading"] { color: var(--blue-dark); }
+.share-status[data-state="ready"] { color: var(--green); }
+.share-status[data-state="error"] { color: var(--orange); }
+.share-examples { margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--line); }
+.share-example { display: flex; width: 100%; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; padding: 14px 0 0; color: var(--ink-soft); border: 0; background: transparent; cursor: pointer; text-align: left; }
+.share-example span { color: var(--blue-dark); font-weight: 720; }
+.share-example code { color: var(--muted); font-size: 0.72rem; overflow-wrap: anywhere; }
+.share-example:hover code { color: var(--blue); }
+.share-how-card { color: #e7eef4; border-color: #2c3e50; background: var(--navy); box-shadow: var(--shadow-large); }
+.share-how-card .share-note-label { color: #9bb0c1; }
+.share-how-list { padding: 0; margin: 32px 0 0; list-style: none; }
+.share-how-list li { display: grid; grid-template-columns: 36px 1fr; column-gap: 13px; padding: 18px 0; border-top: 1px solid #2d3d4d; }
+.share-how-list li span { grid-row: span 2; display: grid; width: 30px; height: 30px; place-items: center; color: #9bb0c1; border: 1px solid #45586b; border-radius: 50%; font-family: var(--font-mono); font-size: 0.62rem; }
+.share-how-list strong { color: #fff; font-family: var(--font-display); font-size: 1.08rem; font-weight: 600; }
+.share-how-list p { margin: 3px 0 0; color: #b9c8d4; font-size: 0.78rem; line-height: 1.45; }
+.share-result-shell { padding-bottom: clamp(76px, 9vw, 128px); }
+.share-result-shell > .share-section-heading { padding-bottom: 34px; }
+.share-result { min-height: 80px; }
+.share-result[hidden] { display: none; }
+.share-result-panel { padding: clamp(26px, 5vw, 52px); border: 1px solid var(--line-strong); border-top: 4px solid var(--green); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-small); }
+.share-result-error { border-top-color: var(--orange); }
+.share-result-title { max-width: 800px; margin: 8px 0 0; font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3.7rem); font-weight: 610; letter-spacing: -0.055em; line-height: 1.03; }
+.share-result-summary { max-width: 800px; margin: 16px 0 0; color: var(--ink-soft); font-size: 1rem; line-height: 1.55; }
+.share-result-details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 800px; margin-top: 32px; border-top: 1px solid var(--line); }
+.share-result-detail { min-width: 0; padding: 14px 18px 0 0; }
+.share-result-detail + .share-result-detail { padding-left: 18px; border-left: 1px solid var(--line); }
+.share-result-detail-value { display: block; margin-top: 5px; color: var(--ink-soft); font-size: 0.82rem; overflow-wrap: anywhere; }
+.share-link-box { max-width: 920px; padding: 18px; margin-top: 34px; border: 1px solid #9ab2e4; border-radius: var(--radius-small); background: var(--blue-soft); }
+.share-link-label { color: var(--blue-dark); }
+.share-link-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin-top: 9px; }
+.share-link-input { width: 100%; min-width: 0; padding: 13px 14px; color: var(--ink); border: 1px solid #b8c8e8; border-radius: var(--radius-small); background: #fff; font-family: var(--font-mono); font-size: 0.75rem; }
+.share-result-actions { display: flex; flex-wrap: wrap; gap: 11px; margin-top: 20px; }
+.share-preview { max-width: 920px; padding-top: 34px; margin-top: 36px; border-top: 1px solid var(--line); }
+.share-preview-label { color: var(--muted); }
+.share-preview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 15px; }
+.share-preview-card { min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: var(--radius-small); background: #f5f3ee; }
+.share-preview-title { margin: 0; font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; letter-spacing: -0.025em; }
+.share-preview-list { padding: 0 0 0 18px; margin: 14px 0 0; color: var(--ink-soft); font-size: 0.8rem; }
+.share-preview-list li + li { margin-top: 7px; }
+.share-preview-fallback { margin: 14px 0 0; color: var(--muted); font-size: 0.78rem; }
+.share-result-note { max-width: 800px; margin: 24px 0 0; color: var(--muted); font-size: 0.76rem; line-height: 1.5; }
+@media (max-width: 900px) {
+  .share-hero, .share-workbench { grid-template-columns: 1fr; }
+  .share-hero { min-height: 0; }
+  .share-hero-note { max-width: 720px; }
+}
+@media (max-width: 760px) {
+  .share-hero { gap: 44px; padding-block: 54px 76px; }
+  .share-hero-copy h1 { font-size: clamp(3rem, 15vw, 5rem); }
+  .share-workbench { padding-block: 62px 82px; }
+  .share-form-column, .share-how-card, .share-result-panel { padding: 24px; }
+  .share-input-row, .share-link-row, .share-preview-grid { grid-template-columns: 1fr; }
+  .share-input-row .button, .share-link-row .button { width: 100%; justify-content: center; }
+  .share-result-details { grid-template-columns: 1fr; }
+  .share-result-detail, .share-result-detail + .share-result-detail { padding: 12px 0; border-left: 0; }
+  .share-result-detail + .share-result-detail { border-top: 1px solid var(--line); }
+}
