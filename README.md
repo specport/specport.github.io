@@ -3,12 +3,17 @@
 This repository is the dependency-free static site published at
 <https://specport.github.io/> through `.github/workflows/pages.yml`.
 
-The page leads with the current product wedge: compare the exact final Git tree
-with an approved scope or pinned review before merge. A bare `coverage` run is
-described honestly as an inventory; it becomes a coverage verdict only when the
-user supplies an explicit comparison source. The broader `SPEC.md` lifecycle is
-secondary workflow depth. The site also exposes the public SpecPort catalog as a
-searchable, filterable marketplace for reusable specs.
+The homepage leads with the user-facing job: turn rough thoughts into a
+buildable, verifiable `SPEC.md`, then gives the agent the package and bounded
+playbooks needed to carry that contract forward. The current product wedge is
+still visible in the proof section: compare the exact final Git tree with an
+approved scope or pinned review before merge. A bare `coverage` run is described
+honestly as an inventory; it becomes a coverage verdict only when the user
+supplies an explicit comparison source. The standalone
+[`docs.html`](https://specport.github.io/docs.html) page contains the agent
+install/export instructions, spec-writing standard, and verifiable loop. The
+site also exposes the public SpecPort catalog as a searchable, filterable
+marketplace for reusable specs.
 
 ## Catalog feed
 

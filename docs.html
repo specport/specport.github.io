@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="The SpecPort spec standard: install the agent skills, write a human-owned buildable contract, and run a verifiable implementation loop."
+    />
+    <meta name="theme-color" content="#f4f2ec" />
+    <meta property="og:title" content="SpecPort docs — the spec standard for agent work" />
+    <meta
+      property="og:description"
+      content="Write intent once, keep facts and decisions separate, and make every implementation claim traceable to evidence."
+    />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://specport.github.io/docs.html" />
+    <meta property="og:image" content="https://specport.github.io/og-image.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>SpecPort docs — the spec standard for agent work</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./docs.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <header class="site-header">
+      <div class="header-shell">
+        <a class="brand" href="./index.html" aria-label="SpecPort home">
+          <img src="./logo.svg" alt="SpecPort" width="132" height="34" />
+        </a>
+        <nav class="primary-nav" aria-label="Primary navigation">
+          <a href="./index.html">Overview</a>
+          <a href="#agent-setup">Agent setup</a>
+          <a href="#spec-standard" aria-current="page">Spec standard</a>
+          <a href="#verifiable-loop">Verifiable loop</a>
+          <a class="nav-source" href="https://github.com/specport/specport">
+            GitHub <span aria-hidden="true">↗</span>
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="docs-hero page-shell" aria-labelledby="docs-title">
+        <div class="docs-hero-copy">
+          <p class="product-label">
+            <span class="signal-dot" aria-hidden="true"></span>
+            SpecPort docs / agent protocol
+          </p>
+          <h1 id="docs-title">A spec should make the next action obvious—and the result verifiable.</h1>
+          <p class="docs-hero-lede">
+            This is the working standard for turning a thought into a buildable contract,
+            handing it to an agent, and ending with evidence a human can inspect. The agent
+            may implement; the owner keeps intent, boundaries, acceptance, taste, and the
+            final ship decision.
+          </p>
+          <div class="docs-hero-actions">
+            <a class="button button-primary" href="#agent-setup">Install for agents</a>
+            <a class="button button-secondary" href="./index.html#overview">Back to SpecPort</a>
+          </div>
+        </div>
+
+        <aside class="docs-signal-card" aria-label="SpecPort lifecycle summary">
+          <p class="docs-card-kicker">The contract loop</p>
+          <div class="docs-signal-line"><span>01</span><strong>thought</strong></div>
+          <div class="docs-signal-line"><span>02</span><strong>SPEC.md</strong></div>
+          <div class="docs-signal-line"><span>03</span><strong>accepted contract</strong></div>
+          <div class="docs-signal-line"><span>04</span><strong>implementation + evidence</strong></div>
+          <div class="docs-signal-line docs-signal-line-final"><span>05</span><strong>human ship decision</strong></div>
+          <p class="docs-card-note">A passing check is evidence about one boundary. It is never a substitute for the next gate.</p>
+        </aside>
+      </section>
+
+      <nav class="docs-local-nav section-shell" aria-label="On this page">
+        <span>On this page</span>
+        <a href="#agent-setup">Install &amp; export</a>
+        <a href="#spec-standard">Write the standard</a>
+        <a href="#verifiable-loop">Run the loop</a>
+        <a href="#best-practices">Best practices</a>
+        <a href="#agent-preamble">Agent preamble</a>
+      </nav>
+
+      <section class="docs-section docs-install-section" id="agent-setup" aria-labelledby="agent-setup-title">
+        <div class="section-shell">
+          <div class="docs-section-heading">
+            <p class="section-label">01 / Install &amp; export</p>
+            <h2 id="agent-setup-title">Put the same evidence protocol in the agent’s workspace.</h2>
+            <p>
+              Install the published package as a development dependency. Then export the two
+              packaged playbooks into the native skill directory used by your agent host.
+            </p>
+          </div>
+
+          <div class="docs-install-grid">
+            <article class="docs-command-card docs-command-card-dark">
+              <div class="docs-command-card-head">
+                <span class="docs-step-number">01</span>
+                <div>
+                  <p class="docs-card-kicker">Project dependency</p>
+                  <h3>Install the CLI</h3>
+                </div>
+              </div>
+              <div class="docs-command-line">
+                <code>npm install --save-dev @specport/specport</code>
+                <button class="copy-button copy-button-dark" type="button" data-copy="npm install --save-dev @specport/specport" aria-label="Copy the SpecPort npm install command">
+                  <span data-copy-label aria-live="polite">Copy</span>
+                </button>
+              </div>
+              <p>Requires Node.js 20 or newer. Prefer the project-local binary through <code>npx --no-install specport</code> so the run is tied to the version in the repository.</p>
+            </article>
+
+            <article class="docs-command-card">
+              <div class="docs-command-card-head">
+                <span class="docs-step-number">02</span>
+                <div>
+                  <p class="docs-card-kicker">Inspect first</p>
+                  <h3>List the packaged skills</h3>
+                </div>
+              </div>
+              <div class="docs-command-line docs-command-line-light">
+                <code>npx --no-install specport skill list</code>
+                <button class="copy-button" type="button" data-copy="npx --no-install specport skill list" aria-label="Copy the SpecPort skill list command">
+                  <span data-copy-label aria-live="polite">Copy</span>
+                </button>
+              </div>
+              <p>The package includes <code>specport-repo-to-spec</code> and <code>specport-spec-to-production</code>. Read the bundle before exporting it into a shared project.</p>
+            </article>
+          </div>
+
+          <div class="docs-export-panel">
+            <div>
+              <p class="docs-card-kicker">03 / Host integration</p>
+              <h3>Export the playbooks without silently overwriting local instructions.</h3>
+              <p>Use the directory your host actually loads. The examples below use Codex; replace <code>.codex/skills</code> with <code>.claude/skills</code> or the host’s documented native location when needed.</p>
+            </div>
+            <div class="docs-command-stack">
+              <div class="docs-command-line docs-command-line-light">
+                <code>npx --no-install specport skill export specport-repo-to-spec --out .codex/skills/specport-repo-to-spec</code>
+                <button class="copy-button" type="button" data-copy="npx --no-install specport skill export specport-repo-to-spec --out .codex/skills/specport-repo-to-spec" aria-label="Copy the repo-to-spec skill export command">
+                  <span data-copy-label aria-live="polite">Copy</span>
+                </button>
+              </div>
+              <div class="docs-command-line docs-command-line-light">
+                <code>npx --no-install specport skill export specport-spec-to-production --out .codex/skills/specport-spec-to-production</code>
+                <button class="copy-button" type="button" data-copy="npx --no-install specport skill export specport-spec-to-production --out .codex/skills/specport-spec-to-production" aria-label="Copy the spec-to-production skill export command">
+                  <span data-copy-label aria-live="polite">Copy</span>
+                </button>
+              </div>
+            </div>
+            <p class="docs-boundary-note"><strong>Boundary:</strong> a skill is an instruction bundle, not permission to approve, publish, deploy, or invent missing requirements. Existing export directories are protected unless the owner explicitly chooses <code>--force</code>.</p>
+          </div>
+
+          <div class="docs-source-links">
+            <span>Read the source playbooks:</span>
+            <a href="https://github.com/specport/specport/blob/main/skills/specport-repo-to-spec/SKILL.md">repo → spec <span aria-hidden="true">↗</span></a>
+            <a href="https://github.com/specport/specport/blob/main/skills/specport-spec-to-production/SKILL.md">spec → production <span aria-hidden="true">↗</span></a>
+            <a href="https://github.com/specport/specport/blob/main/skills/README.md">skills README <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="docs-section docs-standard-section" id="spec-standard" aria-labelledby="spec-standard-title">
+        <div class="section-shell">
+          <div class="docs-section-heading docs-section-heading-wide">
+            <p class="section-label">02 / Write the standard</p>
+            <h2 id="spec-standard-title">A useful spec is a contract, not a longer prompt.</h2>
+            <p>
+              Write for a cold reader who was not in the original conversation. Name the user
+              job, the outcome, the boundaries, and the evidence that would change the decision.
+              Preserve what is known, what is inferred, and what still needs a human answer.
+            </p>
+          </div>
+
+          <div class="docs-standard-grid">
+            <article class="docs-standard-card docs-standard-card-accent">
+              <p class="docs-card-kicker">Every accepted spec declares</p>
+              <h3>The decision surface</h3>
+              <ol class="docs-field-list">
+                <li><strong>Owner + user/job</strong><span>Who owns the decision, and who is trying to accomplish what?</span></li>
+                <li><strong>Outcome</strong><span>What observable change should exist when the work is done?</span></li>
+                <li><strong>Scope + non-goals</strong><span>What is included, explicitly excluded, or forbidden?</span></li>
+                <li><strong>Constraints</strong><span>Privacy, compatibility, performance, dependencies, permissions, and operating limits.</span></li>
+                <li><strong>Acceptance criteria</strong><span>Scenario-shaped, ID’d, observable results with evidence and risk.</span></li>
+                <li><strong>Verification</strong><span>Exact commands, fixtures, environments, and what each check does not prove.</span></li>
+                <li><strong>Taste + human review</strong><span>Named reviewer and a product-specific rubric for the real medium.</span></li>
+                <li><strong>Release + rollback</strong><span>Artifact, target, compatibility, recovery path, and ship authority.</span></li>
+              </ol>
+            </article>
+
+            <article class="docs-standard-card docs-standard-card-dark">
+              <p class="docs-card-kicker">Keep truth labels visible</p>
+              <h3>Four kinds of statements</h3>
+              <div class="docs-truth-list">
+                <div><strong>Observed</strong><span>Directly supported by a file, command, runtime, test, or artifact. Add a source locator.</span></div>
+                <div><strong>Inferred</strong><span>A reasoned interpretation of observations. Cite the observations and mark it for human confirmation.</span></div>
+                <div><strong>Unknown</strong><span>Material information that was not found or not run. Keep the question and its blocking stage.</span></div>
+                <div><strong>Accepted</strong><span>A named human decision with owner, date, version, boundary, and any accepted risk.</span></div>
+              </div>
+              <p class="docs-card-note">An agent summary is not evidence. If a command was not run, record it as not run.</p>
+            </article>
+          </div>
+
+          <div class="docs-spec-shape">
+            <div class="docs-spec-shape-heading">
+              <p class="docs-card-kicker">A readable source shape</p>
+              <h3>Keep the contract portable in <code>SPEC.md</code>.</h3>
+              <p>This outline is a starting point, not permission to fill unknown decisions with defaults.</p>
+            </div>
+            <pre><code># Product or change name
+
+Status: draft — human confirmation required
+Owner: [named human]
+
+## Intent
+- User / job: [who needs what]
+- Outcome: [observable result]
+- Non-goals: [what this does not do]
+
+## Scope and constraints
+- In scope: [bounded paths, surfaces, or behavior]
+- Constraints: [privacy, compatibility, dependencies, permissions]
+- Forbidden behavior: [explicit unsafe or out-of-scope actions]
+
+## Acceptance
+- AC-001: Given … when … then …
+  Evidence: [artifact, output, runtime observation]
+
+## Verification
+- `npm test` — proves [checks], does not prove [taste / release / security]
+
+## Taste and human review
+- Reviewer: [named human]
+- Rubric: [product-specific live review]
+
+## Release, rollback, unknowns
+- Artifact / compatibility: [target]
+- Rollback: [last known good + recovery owner]
+- Unknowns / next actions: [open decisions]</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="docs-section docs-loop-section" id="verifiable-loop" aria-labelledby="verifiable-loop-title">
+        <div class="section-shell">
+          <div class="docs-section-heading">
+            <p class="section-label">03 / Run the loop</p>
+            <h2 id="verifiable-loop-title">Move one gate at a time. Re-open downstream gates after every change.</h2>
+            <p>
+              The loop below is the compact operating protocol. Use the packaged skills for the
+              detailed handoff and keep the artifacts beside the repository so another agent or
+              human can resume without replaying a chat transcript.
+            </p>
+          </div>
+
+          <ol class="docs-loop-list">
+            <li>
+              <span class="docs-loop-number">00</span>
+              <div><p class="docs-loop-kicker">Capture the thought</p><h3>Start with the user job and desired outcome.</h3><p>Use <code>specport spec create notes.md --out SPEC.md</code> for a brief or <code>specport spec bundle .</code> for a repository handoff. Preserve the source and label missing intent as unresolved.</p></div>
+              <span class="docs-loop-state">draft</span>
+            </li>
+            <li>
+              <span class="docs-loop-number">01</span>
+              <div><p class="docs-loop-kicker">Ground the draft</p><h3>Separate repository evidence from product intent.</h3><p>Read the baseline and evidence ledger. Use <code>[OBS-*]</code>, <code>[INF-*]</code>, and <code>[UNK-*]</code> references so a cold reader can trace every claim.</p></div>
+              <span class="docs-loop-state">observed</span>
+            </li>
+            <li>
+              <span class="docs-loop-number">02</span>
+              <div><p class="docs-loop-kicker">Accept the contract</p><h3>Ask the owner to accept, revise, or reject the intent.</h3><p>Run <code>specport spec check SPEC.md --json</code> for structure, then create the human-owned contract and run <code>specport spec validate .specport/contract.json --json</code>. Neither command creates acceptance by inference.</p></div>
+              <span class="docs-loop-state docs-loop-state-human">human gate</span>
+            </li>
+            <li>
+              <span class="docs-loop-number">03</span>
+              <div><p class="docs-loop-kicker">Lock the handoff</p><h3>Make the accepted inputs reproducible.</h3><p>Run <code>specport spec lock SPEC.md --out SPEC.lock</code> and check <code>specport spec drift SPEC.md --lock SPEC.lock --json</code> before implementation and before the final receipt.</p></div>
+              <span class="docs-loop-state">locked</span>
+            </li>
+            <li>
+              <span class="docs-loop-number">04</span>
+              <div><p class="docs-loop-kicker">Implement in scope</p><h3>Let the agent work only against accepted paths and criteria.</h3><p>Trace each change to an acceptance criterion. If the implementation reveals a new requirement, stop and return to the owner instead of silently expanding the contract.</p></div>
+              <span class="docs-loop-state">bounded build</span>
+            </li>
+            <li>
+              <span class="docs-loop-number">05</span>
+              <div><p class="docs-loop-kicker">Verify the candidate</p><h3>Run checks on the exact final candidate and save the outputs.</h3><p>Run the project’s declared tests, lint, typecheck, build, runtime smoke, and relevant failure paths. Then use <code>specport coverage</code> with an explicit expected scope or pinned receiver; inventory alone is not proof.</p></div>
+              <span class="docs-loop-state">evidence</span>
+            </li>
+            <li>
+              <span class="docs-loop-number">06</span>
+              <div><p class="docs-loop-kicker">Review the real medium</p><h3>Have the named human perform the user job.</h3><p>For UI, inspect the live flow; for audio, listen; for writing, read in context; for operations, exercise recovery. Record the rubric, observations, decision, identity, and timestamp.</p></div>
+              <span class="docs-loop-state docs-loop-state-human">human gate</span>
+            </li>
+            <li>
+              <span class="docs-loop-number">07</span>
+              <div><p class="docs-loop-kicker">Guard and decide</p><h3>Bind the spec, evidence, scope, and candidate into one receipt.</h3><p>Run <code>specport spec guard</code> with the contract, acceptance, verification, taste, lock, and explicit comparison basis. A pass means the supplied evidence is identity-bound; the human still owns release, rollback, publish, deploy, and ship.</p></div>
+              <span class="docs-loop-state">not ship authority</span>
+            </li>
+          </ol>
+
+          <div class="docs-failure-panel">
+            <div>
+              <p class="docs-card-kicker">When a gate blocks</p>
+              <h3>Return a fact-shaped status, not a hopeful summary.</h3>
+            </div>
+            <pre><code>STATUS: BLOCKED
+GATE: G<number> &lt;name&gt;
+EVIDENCE: &lt;exact artifact or command output&gt;
+REASON: &lt;fact, not a guess&gt;
+OWNER DECISION NEEDED: &lt;specific question&gt;
+RESUME WHEN: &lt;observable condition&gt;</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="docs-section docs-practice-section" id="best-practices" aria-labelledby="best-practices-title">
+        <div class="section-shell">
+          <div class="docs-section-heading">
+            <p class="section-label">04 / Best practices</p>
+            <h2 id="best-practices-title">Make the spec easy to challenge before it becomes expensive to build.</h2>
+          </div>
+
+          <div class="docs-practice-grid">
+            <article><span>01</span><h3>Lead with the job.</h3><p>Describe who needs what and why before naming a feature or implementation.</p></article>
+            <article><span>02</span><h3>Make acceptance observable.</h3><p>Prefer scenario criteria with IDs, expected results, evidence, and risk over adjectives like “seamless.”</p></article>
+            <article><span>03</span><h3>Write the forbidden path.</h3><p>State what the agent must not change, upload, infer, approve, or silently expand.</p></article>
+            <article><span>04</span><h3>Say what a check cannot prove.</h3><p>A test, map, lock, coverage result, or guard receipt each has a narrower boundary than “done.”</p></article>
+            <article><span>05</span><h3>Keep unknowns alive.</h3><p>Missing facts become questions with owners and blocking stages; they do not become conventional defaults.</p></article>
+            <article><span>06</span><h3>Version the handoff.</h3><p>Keep the exact spec, contract, evidence, tree identity, provenance, release artifact, and recovery path together.</p></article>
+          </div>
+
+          <div class="docs-boundary-grid">
+            <article class="docs-boundary-card docs-boundary-card-positive">
+              <p class="docs-card-kicker">SpecPort can help prove</p>
+              <h3>Relationships between declared artifacts and the exact candidate.</h3>
+              <ul>
+                <li>A draft preserves its source and exposes unresolved decisions.</li>
+                <li>A lock and drift report compare the intended handoff inputs.</li>
+                <li>Coverage identifies whether the final tree matches an explicit scope or receiver.</li>
+                <li>A guard receipt binds supplied evidence to one repository identity and candidate.</li>
+              </ul>
+            </article>
+            <article class="docs-boundary-card">
+              <p class="docs-card-kicker">SpecPort cannot decide for you</p>
+              <h3>Whether the product is correct, safe, tasteful, or ready to ship.</h3>
+              <ul>
+                <li>It does not infer product intent from code or a passing test.</li>
+                <li>It does not execute project code, replace security review, or perform taste review.</li>
+                <li>It does not approve a contract, publish, deploy, or grant ship authority.</li>
+                <li>It does not turn an inventory-only scan into merge proof.</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="docs-section docs-preamble-section" id="agent-preamble" aria-labelledby="agent-preamble-title">
+        <div class="section-shell">
+          <div class="docs-section-heading">
+            <p class="section-label">05 / Agent preamble</p>
+            <h2 id="agent-preamble-title">Give the agent a short instruction it can carry into every task.</h2>
+            <p>Copy this into the host instruction layer, then point it to the project’s actual <code>SPEC.md</code> and evidence paths.</p>
+          </div>
+
+          <div class="docs-preamble-card">
+            <div class="docs-preamble-head">
+              <span>SPEC-PORT / WORKING RULES</span>
+              <button class="copy-button copy-button-dark" type="button" data-copy="Before changing code, read SPEC.md and state the user job, outcome, scope, non-goals, constraints, acceptance criteria, verification commands, human review, release target, rollback, and unknowns. Keep observed, inferred, unknown, and accepted claims separate. If a material decision is unresolved, stop and ask the owner. Implement only accepted scope. Run the declared checks on the final candidate and save their outputs. Run specport coverage with an explicit scope or receiver, then complete the named human review and specport spec guard. Report exact evidence, limitations, and the next owner decision; never call a summary, passing test, or inventory scan a ship decision." aria-label="Copy the SpecPort agent working rules">
+                <span data-copy-label aria-live="polite">Copy</span>
+              </button>
+            </div>
+            <pre><code>Before changing code, read SPEC.md and state the user job, outcome, scope,
+non-goals, constraints, acceptance criteria, verification commands, human
+review, release target, rollback, and unknowns.
+
+Keep observed, inferred, unknown, and accepted claims separate. If a material
+decision is unresolved, stop and ask the owner. Implement only accepted scope.
+
+Run the declared checks on the final candidate and save their outputs. Run
+specport coverage with an explicit scope or receiver, then complete the named
+human review and specport spec guard.
+
+Report exact evidence, limitations, and the next owner decision. Never call a
+summary, passing test, or inventory scan a ship decision.</code></pre>
+          </div>
+
+          <div class="docs-next-links">
+            <a class="button button-primary" href="./index.html#agent-setup">Use the setup commands</a>
+            <a class="button button-secondary" href="https://github.com/specport/specport#specs-that-are-evidence-contracts-and-taste">Read the package reference <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-shell">
+        <a class="brand" href="./index.html" aria-label="Back to SpecPort home">
+          <img src="./logo.svg" alt="SpecPort" width="132" height="34" />
+        </a>
+        <nav aria-label="Footer navigation">
+          <a href="./index.html">Overview</a>
+          <a href="./index.html#catalog">Browse specs</a>
+          <a href="https://github.com/specport/specport/blob/main/CHANGELOG.md">Changelog</a>
+          <a href="https://github.com/specport/specport/blob/main/SECURITY.md">Security</a>
+          <a href="https://github.com/specport/specport/blob/main/LICENSE">MIT license</a>
+        </nav>
+        <p class="footer-build">SpecPort docs · v<span data-release-version>0.1.2</span></p>
+      </div>
+    </footer>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>

@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="A local CLI that compares your final Git tree with the scope or review you approved, flags uncovered files, and leaves a verifiable handoff receipt."
+      content="SpecPort turns rough thoughts into buildable, verifiable specs for human-owned agent work, then checks the exact final tree before merge."
     />
     <meta name="theme-color" content="#f4f2ec" />
-    <meta property="og:title" content="SpecPort — catch AI review gaps before merge" />
+    <meta property="og:title" content="SpecPort — turn thoughts into verifiable specs" />
     <meta
       property="og:description"
-      content="Check whether the final tree still matches the scope or pinned review you approved."
+      content="Turn rough thoughts into a buildable SPEC.md, give your agent a verifiable workflow, and check the exact final tree before merge."
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://specport.github.io/" />
     <meta property="og:image" content="https://specport.github.io/og-image.svg" />
     <meta name="twitter:card" content="summary_large_image" />
-    <title>SpecPort — catch AI review gaps before merge</title>
+    <title>SpecPort — turn thoughts into verifiable specs</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
@@ -32,10 +32,11 @@
         <nav class="primary-nav" aria-label="Primary navigation">
           <a href="#proof">How it helps</a>
           <a href="#quick-start">Quick start</a>
+          <a href="#agent-setup">Agent setup</a>
           <a href="#workflows">Workflows</a>
           <a href="#catalog">Browse specs</a>
           <a href="./share-spec.html">Share spec</a>
-          <a href="https://github.com/specport/specport#readme">Docs</a>
+          <a href="./docs.html">Spec standard</a>
           <a class="nav-source" href="https://github.com/specport/specport">
             GitHub <span aria-hidden="true">↗</span>
           </a>
@@ -48,38 +49,39 @@
         <div class="hero-copy">
           <p class="product-label">
             <span class="signal-dot" aria-hidden="true"></span>
-            Local CLI for AI-assisted merges
+            Human intent → agent-ready contract
           </p>
-          <h1 id="hero-title">Your coding agent says it’s done. Check the final tree.</h1>
+          <h1 id="hero-title">Turn your thoughts into a buildable, verifiable spec.</h1>
           <p class="hero-lede">
-            Git tells you what changed. SpecPort verifies whether the scope or pinned review
-            you approved still covers the exact tree you are about to merge. It flags
-            uncovered paths and weak identity before the change moves on.
+            Start with rough notes. SpecPort turns them into a structured <code>SPEC.md</code>
+            your coding agent can implement, check, and hand back with evidence. Keep intent
+            human-owned while every build step stays inspectable.
           </p>
 
-          <div class="command-box command-box-hero" data-release-command-box aria-label="Run the published SpecPort package">
-            <div class="command-context" data-release-command-context>Published package / exact npm version</div>
+          <div class="command-box command-box-hero" data-release-command-box aria-label="Turn notes into a SpecPort draft">
+            <div class="command-context" data-release-command-context>Published package / notes → SPEC.md</div>
             <div class="command-line">
-              <code><span aria-hidden="true">$</span> <span data-release-command>npx --yes @specport/specport@latest coverage</span></code>
+              <code><span aria-hidden="true">$</span> <span data-release-command>npx --yes @specport/specport@latest spec create notes.md --out SPEC.md</span></code>
               <button
                 class="copy-button"
                 type="button"
-                data-copy="npx --yes @specport/specport@latest coverage"
+                data-copy="npx --yes @specport/specport@latest spec create notes.md --out SPEC.md"
                 data-release-command-copy
-                aria-label="Copy the published SpecPort command"
+                aria-label="Copy the notes-to-spec command"
               >
                 <span data-copy-label aria-live="polite">Copy</span>
               </button>
             </div>
           </div>
-          <p class="command-qualifier" data-release-qualifier>Starts as a final-tree inventory. Add an approved scope or pinned review for a fail-closed coverage verdict.</p>
+          <p class="command-qualifier" data-release-qualifier>Creates a deterministic draft; inspect it, add human decisions, then run the structural check.</p>
 
           <div class="hero-actions">
-            <a class="button button-primary" href="#proof">See the review gap it catches</a>
-            <a class="button button-secondary" href="https://github.com/specport/specport#the-first-minute-workflow">
-              Read the first-minute workflow <span aria-hidden="true">↗</span>
+            <a class="button button-primary" href="#agent-setup">Set up your agent</a>
+            <a class="button button-secondary" href="./docs.html#spec-standard">
+              Read the spec standard <span aria-hidden="true">↗</span>
             </a>
           </div>
+          <p class="hero-proof-link">Already have a branch? <a href="#proof">See the final-tree proof this workflow leads to.</a></p>
 
           <ul class="release-line" aria-label="Current package facts">
             <li>
@@ -304,6 +306,59 @@
                 <a href="https://github.com/specport/specport#output-and-exit-codes">Output and exit codes <span aria-hidden="true">↗</span></a>
               </nav>
             </aside>
+          </div>
+        </div>
+      </section>
+
+      <section class="agent-setup-section" id="agent-setup" aria-labelledby="agent-setup-title">
+        <div class="section-shell">
+          <div class="section-intro">
+            <p class="section-label">Agent setup</p>
+            <h2 id="agent-setup-title">Give your agent the package and the protocol.</h2>
+            <p>
+              Install SpecPort in the project, export the two bounded playbooks, and point the
+              agent at the same spec standard every time work changes hands.
+            </p>
+          </div>
+
+          <div class="agent-setup-grid">
+            <article class="agent-guide-card">
+              <p class="agent-guide-kicker">01 / Install</p>
+              <h3>Make the CLI available in the repository.</h3>
+              <div class="agent-command">
+                <code>npm install --save-dev @specport/specport</code>
+                <button class="copy-button" type="button" data-copy="npm install --save-dev @specport/specport" aria-label="Copy the SpecPort npm install command">
+                  <span data-copy-label aria-live="polite">Copy</span>
+                </button>
+              </div>
+              <p>Node.js 20 or newer. The install is local; source, prompts, and transcripts stay out of a SpecPort service.</p>
+            </article>
+
+            <article class="agent-guide-card agent-guide-card-dark">
+              <p class="agent-guide-kicker">02 / Export</p>
+              <h3>Load the repo-to-spec and production playbooks.</h3>
+              <div class="agent-command agent-command-dark">
+                <code>npx --no-install specport skill export specport-repo-to-spec --out .codex/skills/specport-repo-to-spec</code>
+                <button class="copy-button copy-button-dark" type="button" data-copy="npx --no-install specport skill export specport-repo-to-spec --out .codex/skills/specport-repo-to-spec" aria-label="Copy the repo-to-spec skill export command">
+                  <span data-copy-label aria-live="polite">Copy</span>
+                </button>
+              </div>
+              <div class="agent-command agent-command-dark agent-command-secondary">
+                <code>npx --no-install specport skill export specport-spec-to-production --out .codex/skills/specport-spec-to-production</code>
+                <button class="copy-button copy-button-dark" type="button" data-copy="npx --no-install specport skill export specport-spec-to-production --out .codex/skills/specport-spec-to-production" aria-label="Copy the spec-to-production skill export command">
+                  <span data-copy-label aria-live="polite">Copy</span>
+                </button>
+              </div>
+              <p>Use your host’s native skill directory, such as <code>.codex/skills</code> or <code>.claude/skills</code>. Exports do not overwrite an existing directory unless you explicitly add <code>--force</code>.</p>
+            </article>
+          </div>
+
+          <div class="agent-loop-strip">
+            <div>
+              <p class="section-label">The loop</p>
+              <strong>thought → draft → human acceptance → build → evidence → guard</strong>
+            </div>
+            <a class="text-link" href="./docs.html#verifiable-loop">Read the agent instructions <span aria-hidden="true">↗</span></a>
           </div>
         </div>
       </section>
@@ -585,7 +640,7 @@
             <p>Inventory first. Add an approved scope or pinned review for a coverage verdict.</p>
             <nav class="final-links" aria-label="Get started links">
               <a href="./proof/coverage-gap/receipt.json">See the example receipt</a>
-              <a href="https://github.com/specport/specport#readme">Read the docs</a>
+              <a href="./docs.html">Read the docs</a>
               <a href="https://github.com/specport/specport">Inspect the source</a>
             </nav>
           </div>
@@ -599,7 +654,7 @@
           <img src="./logo.svg" alt="SpecPort" width="132" height="34" />
         </a>
         <nav aria-label="Footer navigation">
-          <a href="https://github.com/specport/specport#readme">Documentation</a>
+          <a href="./docs.html">Documentation</a>
           <a href="#catalog">Browse specs</a>
           <a href="https://github.com/specport/specport/blob/main/CHANGELOG.md">Changelog</a>
           <a href="https://github.com/specport/specport/blob/main/SECURITY.md">Security</a>

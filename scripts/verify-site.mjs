@@ -6,9 +6,11 @@ import { parseGistRoute, parseRepoRoute, parseShareInput, parseShareRoute, parse
 const siteRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const requiredFiles = [
   'index.html',
+  'docs.html',
   'share-spec.html',
   '404.html',
   'styles.css',
+  'docs.css',
   'spec.css',
   'share-spec.css',
   'app.js',
@@ -32,12 +34,14 @@ for (const path of requiredFiles) {
   await access(join(siteRoot, path));
 }
 
-const [html, shareHtml, notFound, css, specCss, shareCss, script, modelScript, catalogScript, catalogText, workflow, releaseText, proofText, inputText] =
+const [html, docsHtml, shareHtml, notFound, css, docsCss, specCss, shareCss, script, modelScript, catalogScript, catalogText, workflow, releaseText, proofText, inputText] =
   await Promise.all([
     readFile(join(siteRoot, 'index.html'), 'utf8'),
+    readFile(join(siteRoot, 'docs.html'), 'utf8'),
     readFile(join(siteRoot, 'share-spec.html'), 'utf8'),
     readFile(join(siteRoot, '404.html'), 'utf8'),
     readFile(join(siteRoot, 'styles.css'), 'utf8'),
+    readFile(join(siteRoot, 'docs.css'), 'utf8'),
     readFile(join(siteRoot, 'spec.css'), 'utf8'),
     readFile(join(siteRoot, 'share-spec.css'), 'utf8'),
     readFile(join(siteRoot, 'app.js'), 'utf8'),
@@ -130,7 +134,7 @@ assert(
 );
 
 const requiredHtml = [
-  'Your coding agent says it’s done. Check the final tree.',
+  'Turn your thoughts into a buildable, verifiable spec.',
   'data-release-command',
   'data-release-command-context',
   'data-release-command-box',
@@ -161,6 +165,11 @@ const requiredHtml = [
   'data-catalog-filter="decision"',
   'data-catalog-filter="freshness"',
   'https://github.com/specport/specs',
+  'id="agent-setup"',
+  'npm install --save-dev @specport/specport',
+  'data-copy="npx --yes @specport/specport@latest spec create notes.md --out SPEC.md"',
+  'specport skill export specport-repo-to-spec',
+  './docs.html#verifiable-loop',
 ];
 for (const text of requiredHtml) {
   assert(html.includes(text), `index.html is missing required content: ${text}`);
@@ -169,7 +178,7 @@ assert(html.includes(`data-release-status>${release.publicationStatus}`), 'Stati
 assert(html.includes(`data-release-version>${release.version}`), 'Static release version is stale.');
 if (release.publicationStatus === 'PUBLISHED') {
   assert(!html.includes('npm publication pending'), 'PUBLISHED site must not retain the pending-publication context.');
-  assert(html.includes('Published package / exact npm version'), 'PUBLISHED site must expose the published command context.');
+  assert(html.includes('Published package / notes → SPEC.md'), 'PUBLISHED site must expose the notes-to-spec command context.');
 }
 if (release.publicationStatus === 'NOT-PUBLISHED') {
   assert(!html.includes('npm install --save-dev @specport/specport'), 'NOT-PUBLISHED site must not present npm install as available.');
@@ -190,15 +199,45 @@ for (const text of forbiddenHtml) {
 
 assert((html.match(/<h1\b/g) ?? []).length === 1, 'Page must contain exactly one h1.');
 assert(html.includes('class="skip-link"'), 'Page is missing a skip link.');
+const requiredDocsHtml = [
+  'A spec should make the next action obvious—and the result verifiable.',
+  'id="agent-setup"',
+  'id="spec-standard"',
+  'id="verifiable-loop"',
+  'id="best-practices"',
+  'id="agent-preamble"',
+  'npm install --save-dev @specport/specport',
+  'npx --no-install specport skill list',
+  'npx --no-install specport skill export specport-repo-to-spec',
+  'npx --no-install specport skill export specport-spec-to-production',
+  'specport spec check SPEC.md --json',
+  'specport spec validate .specport/contract.json --json',
+  'specport spec guard',
+  'STATUS: BLOCKED',
+  'Observed',
+  'Inferred',
+  'Unknown',
+  'Accepted',
+];
+for (const text of requiredDocsHtml) {
+  assert(docsHtml.includes(text), `docs.html is missing required content: ${text}`);
+}
+assert((docsHtml.match(/<h1\b/g) ?? []).length === 1, 'Docs page must contain exactly one h1.');
+assert(docsHtml.includes('class="skip-link"'), 'Docs page is missing a skip link.');
 assert(css.includes(':focus-visible'), 'CSS is missing a visible focus treatment.');
 assert(css.includes('prefers-reduced-motion'), 'CSS is missing reduced-motion handling.');
 assert(css.includes('@media (max-width: 760px)'), 'CSS is missing the primary mobile layout.');
+assert(docsCss.includes('.docs-hero') && docsCss.includes('.docs-loop-list') && docsCss.includes('.docs-preamble-card'), 'Docs stylesheet is missing core page treatments.');
+assert(docsCss.includes('@media (max-width: 760px)'), 'Docs stylesheet is missing its mobile layout.');
 assert(shareHtml.includes('data-view="share-spec"'), 'Share spec page is missing its view marker.');
 assert(shareHtml.includes('data-share-form'), 'Share spec page is missing its source form.');
 assert(shareHtml.includes('data-share-input'), 'Share spec page is missing its source input.');
 assert(shareHtml.includes('data-share-link'), 'Share spec page is missing its nearby generated-link slot.');
 assert(shareHtml.includes('data-share-result'), 'Share spec page is missing its result root.');
+assert(shareHtml.includes('link-accessible GitHub Gist'), 'Share spec page must explain link-accessible Gist support.');
+assert(shareHtml.includes('Public repositories and link-accessible Gists only.'), 'Share spec page source guidance is stale.');
 assert(shareCss.includes('.share-hero') && shareCss.includes('.share-quick-link') && shareCss.includes('.share-result-panel'), 'Share spec stylesheet is missing core page treatments.');
+assert(shareCss.includes('.share-agent-prompt') && shareCss.includes('.share-agent-prompt-text'), 'Share spec stylesheet is missing the coding-agent prompt treatment.');
 assert(shareCss.includes('min-height: 360px') && shareCss.includes('font-size: clamp(2.8rem, 5.4vw, 5.2rem)'), 'Share spec hero is too visually dominant.');
 assert(!script.includes('.innerHTML'), 'JavaScript must not assign fetched data with innerHTML.');
 assert(!script.includes('document.write'), 'JavaScript must not write fetched content into the document stream.');
@@ -207,6 +246,11 @@ assert(script.includes('https://api.github.com/gists/'), 'JavaScript is missing 
 assert(script.includes('https://api.github.com/repos/'), 'JavaScript is missing the GitHub repository SPEC.md fetch.');
 assert(script.includes('parseShareInput'), 'JavaScript is missing Share spec input detection.');
 assert(script.includes('renderShareLink'), 'JavaScript is missing the nearby generated-link control.');
+assert(script.includes('createCodingAgentPrompt'), 'JavaScript is missing the Gist coding-agent prompt generator.');
+assert(script.includes('Copy coding-agent prompt'), 'Gist results must expose a coding-agent prompt copy button.');
+assert(script.includes('npm install --save-dev @specport/specport@latest'), 'Coding-agent prompt must install the published SpecPort package.');
+assert(script.includes('npx --no-install specport spec check SPEC.md --json'), 'Coding-agent prompt must require a SpecPort structural check.');
+assert(script.includes('route.kind === "gist"'), 'Coding-agent prompt must be limited to resolved Gist sources.');
 assert(script.includes('root SPEC.md'), 'JavaScript must explain the repository root SPEC.md contract.');
 assert(script.includes('candidates.find(isTextFile)'), 'Gists must support a single readable Markdown file.');
 assert(script.includes('readSingleGistFile'), 'JavaScript is missing the single-file Gist fallback.');
@@ -286,6 +330,30 @@ for (const src of [...html.matchAll(/\ssrc="([^"]+)"/g)].map((match) => match[1]
   await access(candidate);
 }
 
+const docsIds = new Set([...docsHtml.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]));
+assert(docsIds.size === (docsHtml.match(/\sid="[^"]+"/g) ?? []).length, 'Docs page contains duplicate ids.');
+let docsLocalLinkCount = 0;
+for (const href of [...docsHtml.matchAll(/\shref="([^"]+)"/g)].map((match) => match[1])) {
+  if (href.startsWith('#')) {
+    assert(docsIds.has(decodeURIComponent(href.slice(1))), `Docs page is missing in-page link target: ${href}`);
+    docsLocalLinkCount += 1;
+    continue;
+  }
+  if (/^(?:https?:|mailto:|tel:)/.test(href)) continue;
+  const pathOnly = href.split(/[?#]/, 1)[0];
+  const candidate = normalize(join(siteRoot, pathOnly));
+  assert(candidate.startsWith(siteRoot), `Docs local link escapes the site root: ${href}`);
+  await access(candidate);
+  docsLocalLinkCount += 1;
+}
+for (const src of [...docsHtml.matchAll(/\ssrc="([^"]+)"/g)].map((match) => match[1])) {
+  if (/^(?:https?:|data:)/.test(src)) continue;
+  const pathOnly = src.split(/[?#]/, 1)[0];
+  const candidate = normalize(join(siteRoot, pathOnly));
+  assert(candidate.startsWith(siteRoot), `Docs local source escapes the site root: ${src}`);
+  await access(candidate);
+}
+
 assert(workflow.includes('npm run build'), 'Pages workflow must build the package source.');
 assert(
   workflow.includes('repository: specport/specport') &&
@@ -304,6 +372,8 @@ assert(
 );
 assert(
   workflow.includes('404.html') &&
+    workflow.includes('docs.html') &&
+    workflow.includes('docs.css') &&
     workflow.includes('spec.css') &&
     workflow.includes('spec-model.mjs') &&
     workflow.includes('share-spec.html') &&
@@ -335,7 +405,8 @@ assert(
     workflow.includes('deployed-proof.json'),
   'Pages workflow must fetch and verify the deployed page and evidence.',
 );
+assert(workflow.includes('deployed-docs.html') && workflow.includes('docs.html'), 'Pages workflow must fetch and verify the docs page.');
 
 console.log(
-  `site_verify_ok files=${requiredFiles.length} localLinks=${localLinkCount} version=${release.version} proof=${result.coverage} catalog=${catalog.packs.length} deep_links=ready share_page=ready`,
+  `site_verify_ok files=${requiredFiles.length} localLinks=${localLinkCount + docsLocalLinkCount} version=${release.version} proof=${result.coverage} catalog=${catalog.packs.length} docs=ready deep_links=ready share_page=ready`,
 );

@@ -107,7 +107,7 @@ jobs:
       - name: Prepare static site artifact
         run: |
           mkdir public
-          cp index.html share-spec.html 404.html styles.css spec.css share-spec.css app.js spec-model.mjs catalog.js favicon.svg og-image.svg logo.svg release.json public/
+          cp index.html docs.html share-spec.html 404.html styles.css docs.css spec.css share-spec.css app.js spec-model.mjs catalog.js favicon.svg og-image.svg logo.svg release.json public/
           cp catalog-source/catalog.json public/catalog.json
           cp -R proof public/proof
 
@@ -129,6 +129,7 @@ jobs:
           curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}release.json" --output deployed-release.json
           curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}catalog.json" --output deployed-catalog.json
           curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}proof/coverage-gap/receipt.json" --output deployed-proof.json
+          curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}docs.html" --output deployed-docs.html
           curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}share-spec.html" --output deployed-share.html
           DEEP_CODE="$(curl --silent --show-error --retry 6 --retry-delay 3 --retry-all-errors --output deployed-deep.html --write-out '%{http_code}' "${PAGE_URL}karpathy/442a6bf555914893e9891c11519de94f")"
           test "$DEEP_CODE" = "404"
@@ -140,8 +141,10 @@ jobs:
           grep -F 'data-view="spec"' deployed-repo-deep.html
           grep -F 'data-view="share-spec"' deployed-share.html
           grep -F 'data-share-form' deployed-share.html
-          grep -F "SpecPort — catch AI review gaps before merge" deployed.html
-          grep -F "npx --yes @specport/specport@latest coverage" deployed.html
+          grep -F "SpecPort — turn thoughts into verifiable specs" deployed.html
+          grep -F "npx --yes @specport/specport@latest spec create notes.md --out SPEC.md" deployed.html
+          grep -F "A spec should make the next action obvious" deployed-docs.html
+          grep -F "npx --no-install specport skill list" deployed-docs.html
           node -e "const r=require('./deployed-release.json'); if(r.publicationStatus!=='PUBLISHED') process.exit(1)"
           grep -F "SpecPort" deployed.html
           grep -F "data-catalog-results" deployed.html
