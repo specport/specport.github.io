@@ -23,10 +23,10 @@ https://specport.github.io/<gist-owner>/<gist-id>
 ```
 
 For example, the share shape for
-`gist.github.com/stancsz/61a2777a086ae76b94106745bda85102` is:
+`gist.github.com/karpathy/442a6bf555914893e9891c11519de94f` is:
 
 ```text
-https://specport.github.io/stancsz/61a2777a086ae76b94106745bda85102
+https://specport.github.io/karpathy/442a6bf555914893e9891c11519de94f
 ```
 
 The page fetches the Gist through GitHub's unauthenticated GET API, selects the

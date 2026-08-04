@@ -286,6 +286,14 @@
     return response.text();
   }
 
+  async function readSingleGistFile(route) {
+    const rawUrl = `https://gist.githubusercontent.com/${encodeURIComponent(route.owner)}/${route.gistId}/raw`;
+    if (!isAllowedSourceUrl(rawUrl, ["gist.githubusercontent.com"])) throw createSpecError("unsafe_redirect", "The raw Gist source is not a permitted GitHub file.");
+    const response = await fetchWithTimeout(rawUrl, { headers: { Accept: "text/plain" } });
+    if (!response.ok) throw await responseError(response, "gist");
+    return response.text();
+  }
+
   function selectSpecFile(files) {
     if (!files || typeof files !== "object") return null;
     const candidates = Object.values(files).filter((file) => file && typeof file === "object");
@@ -349,7 +357,21 @@
 
   async function resolveSpecSource(route) {
     if (route.kind === "gist") {
-      const gist = await fetchGist(route.gistId);
+      let gist;
+      try {
+        gist = await fetchGist(route.gistId);
+      } catch (error) {
+        if (!["fetch_error", "network_error"].includes(error?.code)) throw error;
+        return {
+          sourceText: await readSingleGistFile(route),
+          filename: "Gist.md",
+          sourceLabel: "Gist.md",
+          sourceUrl: canonicalGistUrl(null, route),
+          visibility: "PUBLIC GIST",
+          updatedAt: null,
+          sourceNote: "GitHub did not return Gist file metadata, so the single raw Markdown file is shown as data. SpecPort does not rewrite the source or send it to a SpecPort service.",
+        };
+      }
       const file = selectSpecFile(gist.files);
       if (!file) throw createSpecError("non_text", "This Gist does not contain a readable text or Markdown file.");
       return {
