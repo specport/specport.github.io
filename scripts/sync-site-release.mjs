@@ -69,15 +69,17 @@ async function syncStaticReleaseFallback(metadata) {
   const sourceCommand = 'git clone https://github.com/specport/specport.git specport';
   const sourceInstallCommand = 'git clone https://github.com/specport/specport.git specport; cd specport; npm ci --ignore-scripts --no-audit --no-fund; npm run build';
   const sourceCoverageCommand = 'node dist/cli.js coverage';
-  const quickStartCommand = published ? 'npx --yes @specport/specport@latest coverage' : sourceCommand;
+  const quickStartCommand = published
+    ? 'npx --yes @specport/specport@latest spec create notes.md --out SPEC.md'
+    : sourceCommand;
   const installCommand = published ? 'npm install --save-dev @specport/specport' : sourceInstallCommand;
   const coverageCommand = published ? 'npx --no-install specport coverage' : sourceCoverageCommand;
-  const commandContext = published ? 'Published package / exact npm version' : 'Current source checkout / npm publication pending';
-  const commandBoxAria = published ? 'Run the published SpecPort package' : 'Use the verified SpecPort source checkout';
-  const commandCopyAria = published ? 'Copy the published SpecPort command' : 'Copy the SpecPort source checkout command';
+  const commandContext = published ? 'Published package / notes \u2192 SPEC.md' : 'Current source checkout / npm publication pending';
+  const commandBoxAria = published ? 'Turn notes into a SpecPort draft' : 'Use the verified SpecPort source checkout';
+  const commandCopyAria = published ? 'Copy the notes-to-spec command' : 'Copy the SpecPort source checkout command';
   const installCopyAria = published ? 'Copy the npm install command' : 'Copy the source checkout command';
   const qualifier = published
-    ? 'Starts as a final-tree inventory. Add an approved scope or pinned review for a fail-closed coverage verdict.'
+    ? 'Creates a deterministic draft; inspect it, add human decisions, then run the structural check.'
     : `Then run <code>${sourceCoverageCommand}</code>. This source path is shown because the current package version is not published.`;
   const note = published
     ? 'Release snapshot verified from the exact npm version and tarball.'
