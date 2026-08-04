@@ -596,7 +596,9 @@
         ...(Array.isArray(catalog?.packs) ? catalog.packs : []),
         ...(Array.isArray(catalog?.records) ? catalog.records : []),
         ...(Array.isArray(catalog?.githubDiscovery?.candidates)
-          ? catalog.githubDiscovery.candidates.map(discoveryRecord)
+          ? catalog.githubDiscovery.candidates
+            .filter((candidate) => candidate?.state === 'catalogable')
+            .map(discoveryRecord)
           : []),
       ];
       if (!rawRecords.length) throw new Error('Catalog contains no public records.');

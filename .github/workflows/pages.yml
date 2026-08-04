@@ -30,8 +30,8 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: specport/specport
-          # Pin release proof to the immutable package-source commit published as 0.1.1.
-          ref: 11178ab7b34b9339187bd33e301c5d608f1cb3cd
+          # Pin release proof to the immutable package-source commit published as 0.1.2.
+          ref: 464be038af08d13dcaa4b31f212d8344799570a9
           path: source
           persist-credentials: false
 
@@ -65,6 +65,11 @@ jobs:
           npm ci --ignore-scripts --no-audit --no-fund
           CATALOG_REF="$(git rev-parse HEAD)"
           SPECPORT_CATALOG_REF="$CATALOG_REF" npm run check
+
+      - name: Assert public catalog boundary
+        working-directory: catalog-source
+        run: |
+          node --input-type=module -e "import { readFile } from 'node:fs/promises'; const catalog = JSON.parse(await readFile('catalog.json', 'utf8')); if (!Array.isArray(catalog.searchIndex) || !catalog.githubDiscovery) throw new Error('Generated catalog artifact is incomplete.'); const publicIds = new Set(catalog.searchIndex.map((entry) => entry.id)); const hiddenIds = catalog.githubDiscovery.candidates.filter((candidate) => candidate.state !== 'catalogable').map((candidate) => candidate.id); if (hiddenIds.some((id) => publicIds.has(id))) throw new Error('Review-only discovery candidate leaked into the public search index.');"
 
       - name: Generate release metadata
         run: node scripts/sync-site-release.mjs

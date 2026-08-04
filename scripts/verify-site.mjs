@@ -88,6 +88,11 @@ assert(Array.isArray(catalog.githubDiscovery?.candidates), 'Discovery report mus
 assert(typeof catalog.githubDiscovery?.health?.search?.resultCap === 'boolean', 'Catalog must expose the GitHub search cap state.');
 assert(catalog.githubDiscovery?.health?.rateLimit && 'remaining' in catalog.githubDiscovery.health.rateLimit, 'Catalog must expose rate-limit metadata.');
 assert(Array.isArray(catalog.searchIndex) && catalog.searchIndex.length >= catalog.packs.length, 'Catalog must expose a compact search index.');
+const publicSearchIds = new Set(catalog.searchIndex.map((entry) => entry.id));
+const hiddenDiscoveryIds = catalog.githubDiscovery.candidates
+  .filter((candidate) => candidate.state !== 'catalogable')
+  .map((candidate) => candidate.id);
+assert(!hiddenDiscoveryIds.some((id) => publicSearchIds.has(id)), 'Review-only discovery candidate leaked into the public search index.');
 for (const pack of catalog.packs) {
   assert(typeof pack.id === 'string' && pack.id.length > 0, 'Catalog pack is missing an id.');
   assert(typeof pack.name === 'string' && pack.name.length > 0, `Catalog pack ${pack.id} is missing a name.`);
@@ -309,11 +314,16 @@ assert(
   workflow.includes('repository: specport/specs') &&
     workflow.includes('path: catalog-source') &&
     workflow.includes('npm run check') &&
-    workflow.includes('cp catalog-source/catalog.json public/catalog.json'),
+    workflow.includes('cp catalog-source/catalog.json public/catalog.json') &&
+    workflow.includes('Assert public catalog boundary'),
   'Pages workflow must consume and verify the generated specs catalog.',
 );
 assert(workflow.includes('cron:'), 'Pages workflow must refresh the external catalog on a schedule.');
 assert(workflow.includes('catalog.js'), 'Pages artifact must include the catalog controller.');
+assert(
+  catalogScript.includes(".filter((candidate) => candidate?.state === 'catalogable')"),
+  'Catalog controller must hide non-catalogable discovery candidates.',
+);
 assert(
   workflow.includes('node scripts/verify-site.mjs'),
   'Pages workflow must run the site verifier.',
