@@ -57,10 +57,15 @@ jobs:
       - name: Smoke exact published package
         shell: bash
         run: |
+          set -euxo pipefail
           VERSION="$(node -p "require('./source/package.json').version")"
           npm install --prefix package-smoke --ignore-scripts --no-audit --no-fund "@specport/specport@$VERSION"
-          test "$(./package-smoke/node_modules/.bin/specport --version)" = "$VERSION"
-          ./package-smoke/node_modules/.bin/specport coverage source --json >/dev/null
+          CLI="./package-smoke/node_modules/.bin/specport"
+          echo "expected_version=$VERSION"
+          echo "reported_version=$($CLI --version)"
+          test "$($CLI --version)" = "$VERSION"
+          ./package-smoke/node_modules/.bin/specport coverage source --json > coverage-smoke.json
+          node -e "const r=require('./coverage-smoke.json'); if(r?.schemaVersion !== '0.1.0' || r?.verdict !== 'inventory-only') process.exit(1)"
 
       - name: Generate coverage proof
         run: node scripts/generate-coverage-proof.mjs
