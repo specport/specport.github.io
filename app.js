@@ -293,8 +293,9 @@
     ].join("\n");
   }
 
-  function createAgentPromptPreview(prompt) {
-    const details = createElement("details", "share-agent-prompt");
+  function createAgentPromptPreview(prompt, options = {}) {
+    const details = createElement("details", options.className || "share-agent-prompt");
+    details.open = options.open === true;
     details.append(createElement("summary", "share-agent-prompt-summary", "Show the coding-agent handoff"));
     const body = createElement("div", "share-agent-prompt-body");
     body.append(
@@ -529,6 +530,10 @@
     root.replaceChildren();
     document.body.classList.add("spec-page");
     const { sourceLabel, sourceUrl, visibility } = resolved;
+    const shareUrl = new URL(route.canonicalPath, window.location.origin).href;
+    const agentPrompt = route.kind === "gist"
+      ? createCodingAgentPrompt(shareUrl, resolved, model)
+      : null;
     const page = createElement("div", "spec-page-content");
     const hero = createElement("section", "spec-hero page-shell");
     const heroCopy = createElement("div", "spec-hero-copy");
@@ -544,8 +549,10 @@
     }
     heroCopy.append(meta);
     const actions = createElement("div", "spec-actions");
-    actions.append(createLink("Back to SpecPort", "/", "button button-primary"), createCopyButton(window.location.href, "Copy share link"), createLink("Open source", sourceUrl, "button button-secondary", true));
+    actions.append(createLink("Back to SpecPort", "/", "button button-primary"), createCopyButton(shareUrl, "Copy share link"), createLink("Open source", sourceUrl, "button button-secondary", true));
+    if (agentPrompt) actions.append(createCopyButton(agentPrompt, "Copy coding-agent prompt"));
     heroCopy.append(actions, createElement("p", "spec-source-note", resolved.sourceNote));
+    if (agentPrompt) heroCopy.append(createAgentPromptPreview(agentPrompt, { className: "spec-agent-prompt", open: true }));
     const sourceCard = createElement("aside", "spec-source-card");
     sourceCard.append(createElement("p", "receipt-kicker", "Source map"), createElement("h2", "spec-source-card-title", "From idea to handoff."), createElement("p", "spec-source-card-copy", "A deterministic view of what the file declares—not a generated product claim."));
     hero.append(heroCopy, sourceCard);

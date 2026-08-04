@@ -11,7 +11,15 @@ body.spec-page { background: #eeece6; }
 .spec-meta-value { display: block; max-width: 100%; margin-top: 5px; color: var(--ink-soft); font-size: 0.84rem; overflow-wrap: anywhere; }
 .spec-actions { display: flex; flex-wrap: wrap; gap: 11px; margin-top: 28px; }
 .spec-actions .button { cursor: pointer; }
+.spec-actions [data-copy] { color: var(--blue-dark); border-color: #8ca8df; background: var(--blue-soft); }
 .spec-source-note { max-width: 720px; margin: 17px 0 0; color: var(--muted); font-size: 0.75rem; line-height: 1.5; }
+.spec-agent-prompt { max-width: 920px; padding: 18px 20px; margin-top: 20px; border: 1px solid #b8c8e8; border-left: 4px solid var(--blue); border-radius: var(--radius-small); background: #edf3ff; }
+.spec-agent-prompt .share-agent-prompt-summary { color: var(--blue-dark); cursor: pointer; font-family: var(--font-display); font-size: 1.08rem; font-weight: 620; letter-spacing: -0.025em; }
+.spec-agent-prompt .share-agent-prompt-summary:focus-visible { border-radius: 4px; box-shadow: 0 0 0 3px rgb(23 86 201 / 15%); outline: 0; }
+.spec-agent-prompt .share-agent-prompt-body { padding-top: 14px; }
+.spec-agent-prompt .share-preview-label { margin: 0; color: var(--muted); font-family: var(--font-mono); font-size: 0.64rem; font-weight: 720; letter-spacing: 0.09em; line-height: 1.4; text-transform: uppercase; }
+.spec-agent-prompt .share-agent-prompt-intro { max-width: 720px; margin: 8px 0 0; color: var(--ink-soft); font-size: 0.8rem; line-height: 1.5; }
+.spec-agent-prompt .share-agent-prompt-text { max-height: 380px; padding: 17px 18px; margin: 12px 0 0; overflow: auto; color: #18324b; border: 1px solid #c8d6ee; border-radius: var(--radius-small); background: #fff; font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
 .spec-source-card { position: relative; overflow: hidden; padding: 30px; color: #e7eef4; border: 1px solid #2c3e50; border-radius: var(--radius); background: var(--navy); box-shadow: var(--shadow-large); }
 .spec-source-card::before { position: absolute; top: 0; right: 0; width: 92px; height: 4px; content: ""; background: var(--orange); }
 .spec-source-card .receipt-kicker { color: #9bb0c1; }
