@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4f2ec" />
+    <meta name="description" content="A shareable, deterministic visualization of a text spec from a GitHub Gist." />
+    <meta property="og:title" content="Shared spec · SpecPort" />
+    <meta property="og:description" content="Read a text idea as a structured, shareable spec page." />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://specport.github.io/" />
+    <meta property="og:image" content="https://specport.github.io/og-image.svg" />
+    <meta name="twitter:card" content="summary" />
+    <title>Shared spec · SpecPort</title>
+    <link rel="canonical" href="https://specport.github.io/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/spec.css" />
+  </head>
+  <body data-view="spec">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="site-header">
+      <div class="header-shell">
+        <a class="brand" href="/" aria-label="SpecPort home">
+          <img src="/logo.svg" alt="SpecPort" width="132" height="34" />
+        </a>
+        <nav class="primary-nav" aria-label="Shared spec navigation">
+          <a href="/">SpecPort home</a>
+          <a class="nav-source" href="https://github.com/specport/specport">GitHub <span aria-hidden="true">↗</span></a>
+        </nav>
+      </div>
+    </header>
+    <main id="main-content">
+      <div data-spec-route-root>
+        <section class="spec-loading page-shell" role="status" aria-live="polite">
+          <p class="product-label"><span class="signal-dot" aria-hidden="true"></span>Shared spec</p>
+          <h1 class="spec-title">Loading shared spec…</h1>
+          <p class="spec-lede">Fetching the first readable file from GitHub.</p>
+        </section>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-shell">
+        <a class="brand" href="/" aria-label="Back to SpecPort home">
+          <img src="/logo.svg" alt="SpecPort" width="132" height="34" />
+        </a>
+        <nav aria-label="Footer navigation">
+          <a href="https://github.com/specport/specport#readme">Documentation</a>
+          <a href="https://github.com/specport/specport/blob/main/SECURITY.md">Security</a>
+          <a href="https://www.npmjs.com/package/@specport/specport">npm package</a>
+        </nav>
+        <p class="footer-build">Shared spec view · GitHub GET only</p>
+      </div>
+    </footer>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
