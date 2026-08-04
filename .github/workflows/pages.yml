@@ -28,9 +28,8 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: specport/specport
-          # Keep the site release proof on the latest published package until
-          # the unreleased 0.1.1 on main is published to npm.
-          ref: 18e1720c97982b110c6bfdc10af3751da4dc1652
+          # Pin release proof to the immutable package-source commit published as 0.1.1.
+          ref: 11178ab7b34b9339187bd33e301c5d608f1cb3cd
           path: source
           persist-credentials: false
 
