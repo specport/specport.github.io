@@ -9,6 +9,7 @@ const sourceRoot = resolve(
 const packagePath = join(sourceRoot, 'package.json');
 const outputPath = join(siteRoot, 'release.json');
 const packageJson = JSON.parse(await readFile(packagePath, 'utf8'));
+const canonicalRepository = 'https://github.com/specport/specport';
 const bin = typeof packageJson.bin === 'string'
   ? packageJson.name.split('/').at(-1)
   : Object.keys(packageJson.bin ?? {})[0] ?? null;
@@ -20,14 +21,14 @@ const release = {
   license: packageJson.license,
   engine: packageJson.engines?.node ?? null,
   bin,
-  repository: packageJson.repository?.url ?? null,
+  repository: canonicalRepository,
   homepage: packageJson.homepage ?? null,
   publicationStatus: 'NOT-PUBLISHED',
   registryVersion: null,
   registryTarball: null,
   deploymentStatus: process.env.SPECPORT_PAGES_STATUS ?? 'SOURCE / VERIFY AFTER DEPLOY',
   commit: process.env.GITHUB_SHA ? process.env.GITHUB_SHA.slice(0, 12) : 'local checkout',
-  source: 'package.json + registry.npmjs.org',
+  source: 'canonical public repository + package.json + registry.npmjs.org',
 };
 
 try {

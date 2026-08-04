@@ -1,34 +1,15 @@
 (() => {
   const copyButtons = document.querySelectorAll("[data-copy]");
-  const releaseStatusNodes = document.querySelectorAll("[data-release-status]");
-  const versionNodes = document.querySelectorAll("[data-release-version]");
-  const licenseNodes = document.querySelectorAll("[data-release-license]");
-  const engineNodes = document.querySelectorAll("[data-release-engine]");
-  const binNodes = document.querySelectorAll("[data-release-bin]");
-  const packageScopeNodes = document.querySelectorAll("[data-release-package-scope]");
-  const packageNameNodes = document.querySelectorAll("[data-release-package]");
-  const pagesStatusNodes = document.querySelectorAll("[data-pages-status]");
-  const commitNodes = document.querySelectorAll("[data-release-commit]");
-  const packageNote = document.querySelector("[data-package-note]");
-  const publishedPathLabels = document.querySelectorAll("[data-published-path-label]");
-  const publishedPathStatuses = document.querySelectorAll("[data-published-path-status]");
-  const publishedPathMessages = document.querySelectorAll("[data-published-path-message]");
-  const publishedPathCards = document.querySelectorAll("[data-published-path-card]");
-  const heroQuickstart = document.querySelector(".hero-quickstart");
-  const heroPublishedPreview = document.querySelector("[data-hero-published-preview]");
-  const heroSourceLabel = document.querySelector("[data-hero-source-label]");
-  const heroPublishedLabels = document.querySelectorAll("[data-hero-published-label]");
-  const heroPublishedStatuses = document.querySelectorAll("[data-hero-published-status]");
-  const registryMessage = document.querySelector("[data-registry-message]");
-  const installSummary = document.querySelector("[data-install-summary]");
-  const publicationMessage = document.querySelector("[data-publication-message]");
 
-  const setButtonState = (button, text, delay = 1500) => {
-    const original = button.dataset.originalLabel || button.textContent;
+  const setCopyState = (button, label, delay = 1600) => {
+    const labelNode = button.querySelector("[data-copy-label]") || button;
+    const original = button.dataset.originalLabel || labelNode.textContent || "Copy";
     button.dataset.originalLabel = original;
-    button.textContent = text;
+    labelNode.textContent = label;
+    button.dataset.copyState = label === "Copied" ? "success" : "idle";
     window.setTimeout(() => {
-      button.textContent = original;
+      labelNode.textContent = original;
+      button.dataset.copyState = "idle";
     }, delay);
   };
 
@@ -57,129 +38,89 @@
 
       try {
         await copyText(value);
-        setButtonState(button, "copied");
+        setCopyState(button, "Copied");
       } catch {
-        setButtonState(button, "select manually", 2200);
+        setCopyState(button, "Select manually", 2400);
       }
     });
   }
 
+  const setText = (selector, value) => {
+    if (value === undefined || value === null || value === "") return;
+    for (const node of document.querySelectorAll(selector)) {
+      node.textContent = String(value);
+    }
+  };
+
   const updateReleaseMetadata = (release) => {
     if (!release || typeof release !== "object") return;
 
-    if (release.publicationStatus) {
-      for (const node of releaseStatusNodes) {
-        node.textContent = release.publicationStatus;
-      }
+    const status = typeof release.publicationStatus === "string"
+      ? release.publicationStatus
+      : null;
+    setText("[data-release-status]", status);
+    setText("[data-release-version]", release.version);
+    setText("[data-release-license]", release.license);
+    setText("[data-release-bin]", release.bin);
+    setText("[data-release-commit]", release.commit);
 
-      const isPublished = release.publicationStatus === "PUBLISHED";
-      for (const node of document.querySelectorAll(".status-dot-release")) {
-        node.classList.toggle("status-dot-warning", !isPublished);
-        node.classList.toggle("status-dot-published", isPublished);
-      }
-      for (const node of document.querySelectorAll(".status-label")) {
-        if (node.querySelector("[data-release-status]")) {
-          node.classList.toggle("status-label-warning", !isPublished);
-          node.classList.toggle("status-label-published", isPublished);
-        }
-      }
+    if (typeof release.engine === "string") {
+      setText("[data-release-engine]", release.engine.replace(/^>=/, "\u2265"));
+    }
 
-      if (isPublished) {
-        if (packageNote) packageNote.textContent = "The exact npm package and tarball match this release. Use the published path below.";
-        if (heroSourceLabel) heroSourceLabel.textContent = "SOURCE PATH / CONTRIBUTOR PATH";
-        for (const node of publishedPathLabels) {
-          node.textContent = "PUBLISHED PATH / PRIMARY INSTALL";
-        }
-        for (const node of publishedPathStatuses) {
-          node.textContent = "AVAILABLE";
-          node.classList.remove("status-label-muted");
-          node.classList.add("status-label-published");
-        }
-        for (const node of heroPublishedLabels) {
-          node.textContent = "PUBLISHED PATH / PRIMARY INSTALL";
-        }
-        for (const node of heroPublishedStatuses) {
-          node.textContent = "AVAILABLE NOW";
-          node.classList.remove("status-label-muted");
-          node.classList.add("status-label-published");
-        }
-        if (heroPublishedPreview) {
-          heroPublishedPreview.classList.add("is-published");
-        }
-        if (heroQuickstart) {
-          heroQuickstart.classList.add("is-published");
-        }
-        for (const node of publishedPathMessages) {
-          node.textContent = "The package path is available after the registry check returned this version.";
-        }
-        for (const node of publishedPathCards) {
-          node.classList.add("code-card-published");
-        }
-        if (registryMessage) registryMessage.textContent = "The exact version and tarball are available from npm.";
-        if (installSummary) installSummary.textContent = "The published package path is verified. The source path remains available for contributors and reproducible checks.";
-        if (publicationMessage) publicationMessage.textContent = "npm publication verified for this version and tarball";
+    if (status) {
+      document.documentElement.dataset.publicationStatus = status;
+      for (const node of document.querySelectorAll("[data-release-state]")) {
+        node.classList.toggle("release-state-published", status === "PUBLISHED");
+        node.classList.toggle("release-state-warning", status !== "PUBLISHED");
       }
     }
 
-    if (release.version) {
-      for (const node of versionNodes) {
-        node.textContent = release.version;
-      }
+    const note = document.querySelector("[data-release-note]");
+    if (note) {
+      note.textContent = status === "PUBLISHED"
+        ? "Release snapshot verified from the exact npm version and tarball."
+        : `Release snapshot reports ${status || "an unknown package state"}; inspect the release record before installing.`;
     }
 
-    if (release.license) {
-      for (const node of licenseNodes) {
-        node.textContent = release.license;
-      }
-    }
+    document.documentElement.dataset.releaseMetadata = "loaded";
+  };
 
-    if (release.engine) {
-      const engine = release.engine.replace(/^>=/, "≥");
-      for (const node of engineNodes) {
-        node.textContent = engine;
-      }
+  const markReleaseMetadataUnavailable = () => {
+    document.documentElement.dataset.releaseMetadata = "unavailable";
+    const note = document.querySelector("[data-release-note]");
+    if (note) {
+      note.textContent = "Live release metadata is unavailable; showing the built-in release snapshot.";
     }
+  };
 
-    if (release.bin) {
-      for (const node of binNodes) {
-        node.textContent = release.bin;
-      }
-    }
+  const updateProofMetadata = (receipt) => {
+    const result = receipt?.result;
+    if (!result || !Array.isArray(result.actualPaths)) return;
 
-    if (release.name) {
-      const separator = release.name.lastIndexOf("/");
-      const scope = separator >= 0 ? release.name.slice(0, separator + 1) : "";
-      const packageName = separator >= 0 ? release.name.slice(separator + 1) : release.name;
-      for (const node of packageScopeNodes) {
-        node.textContent = scope;
-      }
-      for (const node of packageNameNodes) {
-        node.textContent = packageName;
-      }
-    }
-
-    if (release.deploymentStatus) {
-      for (const node of pagesStatusNodes) {
-        node.textContent = release.deploymentStatus;
-      }
-    }
-
-    if (release.commit) {
-      for (const node of commitNodes) {
-        node.textContent = release.commit;
-      }
-    }
-
-    document.documentElement.dataset.publicationStatus = release.publicationStatus || "";
+    setText("[data-proof-status]", result.coverage);
+    setText("[data-proof-final]", result.actualPaths.length);
+    setText("[data-proof-reviewed]", result.reviewedPaths?.length);
+    setText("[data-proof-path]", result.unreviewedPaths?.[0]);
+    setText("[data-proof-action]", result.finding?.nextAction);
+    document.documentElement.dataset.proofMetadata = "loaded";
   };
 
   fetch("./release.json", { cache: "no-store" })
     .then((response) => {
-      if (!response.ok) throw new Error("release metadata unavailable");
+      if (!response.ok) throw new Error("Release metadata unavailable");
       return response.json();
     })
     .then(updateReleaseMetadata)
+    .catch(markReleaseMetadataUnavailable);
+
+  fetch("./proof/coverage-gap/receipt.json", { cache: "no-store" })
+    .then((response) => {
+      if (!response.ok) throw new Error("Proof metadata unavailable");
+      return response.json();
+    })
+    .then(updateProofMetadata)
     .catch(() => {
-      document.documentElement.dataset.publicationStatus = "NOT-PUBLISHED";
+      document.documentElement.dataset.proofMetadata = "unavailable";
     });
 })();

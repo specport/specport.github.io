@@ -1,4 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <rect width="48" height="48" rx="6" fill="#10233d"/>
-  <text x="24" y="29" fill="#f5f7fb" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="800" letter-spacing="1" text-anchor="middle">SPEC</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="SpecPort" shape-rendering="geometricPrecision">
+  <rect x="1.5" y="1.5" width="45" height="45" rx="8" fill="#15181d"/>
+  <g fill="none" stroke="#f4f2ec" stroke-width="1.7" stroke-linecap="square">
+    <path d="M7 7h7M7 7v34M7 41h7"/>
+    <path d="M41 7h-7M41 7v34M41 41h-7"/>
+    <path d="M14 17h20M14 25h20"/>
+  </g>
+  <path d="M21 33h13" stroke="#ef754b" stroke-width="2.5" stroke-linecap="square"/>
 </svg>

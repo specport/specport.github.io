@@ -1,0 +1,112 @@
+{
+  "actual": {
+    "repositoryPath": "fixture://specport/late-file",
+    "repositoryId": "repo:specport/late-file",
+    "headCommit": "2222222222222222222222222222222222222222",
+    "baseCommit": "1111111111111111111111111111111111111111",
+    "baseKind": "commit",
+    "entries": [
+      {
+        "path": "README.md",
+        "status": "modified",
+        "fingerprint": "sha256:readme-final"
+      },
+      {
+        "path": "package.json",
+        "status": "modified",
+        "fingerprint": "sha256:package-final"
+      },
+      {
+        "path": "src/cli.ts",
+        "status": "modified",
+        "fingerprint": "sha256:cli-final"
+      },
+      {
+        "path": "src/core/coverage.ts",
+        "status": "modified",
+        "fingerprint": "sha256:coverage-final"
+      },
+      {
+        "path": "src/core/types.ts",
+        "status": "modified",
+        "fingerprint": "sha256:types-final"
+      },
+      {
+        "path": "src/retry-policy.ts",
+        "status": "added",
+        "fingerprint": "sha256:retry-policy-final"
+      },
+      {
+        "path": "tests/cli.test.ts",
+        "status": "modified",
+        "fingerprint": "sha256:cli-test-final"
+      },
+      {
+        "path": "tests/coverage.test.ts",
+        "status": "modified",
+        "fingerprint": "sha256:coverage-test-final"
+      }
+    ],
+    "fingerprint": "sha256:fixture-final-tree",
+    "patchFingerprint": "sha256:fixture-final-patch",
+    "stable": true
+  },
+  "receiver": {
+    "receiverName": "example-review",
+    "receiverVersion": "1",
+    "reviewId": "review-017",
+    "repositoryPath": "fixture://specport/late-file",
+    "repositoryId": "repo:specport/late-file",
+    "sourceKind": "staged",
+    "baseCommit": "1111111111111111111111111111111111111111",
+    "sourceIdentity": "review-017@1111111111111111111111111111111111111111",
+    "sourceFingerprint": "sha256:fixture-reviewed-patch",
+    "sourceFingerprintKind": "patch",
+    "entries": [
+      {
+        "path": "README.md",
+        "status": "modified",
+        "fingerprint": "sha256:readme-final"
+      },
+      {
+        "path": "package.json",
+        "status": "modified",
+        "fingerprint": "sha256:package-final"
+      },
+      {
+        "path": "src/cli.ts",
+        "status": "modified",
+        "fingerprint": "sha256:cli-final"
+      },
+      {
+        "path": "src/core/coverage.ts",
+        "status": "modified",
+        "fingerprint": "sha256:coverage-final"
+      },
+      {
+        "path": "src/core/types.ts",
+        "status": "modified",
+        "fingerprint": "sha256:types-final"
+      },
+      {
+        "path": "tests/cli.test.ts",
+        "status": "modified",
+        "fingerprint": "sha256:cli-test-final"
+      },
+      {
+        "path": "tests/coverage.test.ts",
+        "status": "modified",
+        "fingerprint": "sha256:coverage-test-final"
+      }
+    ],
+    "pathFingerprints": {
+      "README.md": "sha256:readme-final",
+      "package.json": "sha256:package-final",
+      "src/cli.ts": "sha256:cli-final",
+      "src/core/coverage.ts": "sha256:coverage-final",
+      "src/core/types.ts": "sha256:types-final",
+      "tests/cli.test.ts": "sha256:cli-test-final",
+      "tests/coverage.test.ts": "sha256:coverage-test-final"
+    }
+  }
+}

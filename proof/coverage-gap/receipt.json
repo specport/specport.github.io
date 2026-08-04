@@ -1,0 +1,67 @@
+{
+  "artifactKind": "specport-coverage-example",
+  "schemaVersion": "0.1.0",
+  "generatedBy": {
+    "package": "@specport/specport",
+    "version": "0.1.0",
+    "entrypoint": "compareCoverage"
+  },
+  "fixture": {
+    "name": "late-file-after-review",
+    "synthetic": true,
+    "input": "./input.json"
+  },
+  "result": {
+    "coverage": "partial",
+    "status": "partial",
+    "basis": "receiver-source",
+    "actualPaths": [
+      "README.md",
+      "package.json",
+      "src/cli.ts",
+      "src/core/coverage.ts",
+      "src/core/types.ts",
+      "src/retry-policy.ts",
+      "tests/cli.test.ts",
+      "tests/coverage.test.ts"
+    ],
+    "reviewedPaths": [
+      "README.md",
+      "package.json",
+      "src/cli.ts",
+      "src/core/coverage.ts",
+      "src/core/types.ts",
+      "tests/cli.test.ts",
+      "tests/coverage.test.ts"
+    ],
+    "expectedPaths": [],
+    "unreviewedPaths": [
+      "src/retry-policy.ts"
+    ],
+    "unexpectedPaths": [],
+    "changedAfterReviewPaths": [],
+    "identityGap": [],
+    "findings": [
+      {
+        "code": "source-fingerprint-mismatch",
+        "title": "Review coverage is incomplete",
+        "paths": [
+          "src/retry-policy.ts"
+        ],
+        "nextActionCode": "review-receiver-paths",
+        "nextAction": "Review the listed paths in the pinned receiver before approval.",
+        "detail": "Coverage gap: unreviewed, source-fingerprint."
+      }
+    ],
+    "finding": {
+      "code": "source-fingerprint-mismatch",
+      "title": "Review coverage is incomplete",
+      "paths": [
+        "src/retry-policy.ts"
+      ],
+      "nextActionCode": "review-receiver-paths",
+      "nextAction": "Review the listed paths in the pinned receiver before approval.",
+      "detail": "Coverage gap: unreviewed, source-fingerprint."
+    }
+  }
+}

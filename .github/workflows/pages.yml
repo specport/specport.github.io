@@ -27,7 +27,7 @@ jobs:
       - name: Check out package source
         uses: actions/checkout@v5
         with:
-          repository: stancsz/specport
+          repository: specport/specport
           ref: main
           path: source
           persist-credentials: false
@@ -42,16 +42,39 @@ jobs:
         with:
           enablement: true
 
+      - name: Build package source for release proof
+        working-directory: source
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run build
+
       - name: Generate release metadata
         run: node scripts/sync-site-release.mjs
         env:
           SPECPORT_SOURCE_DIR: source
           SPECPORT_PAGES_STATUS: "PAGES / VERIFY AFTER DEPLOY"
 
+      - name: Smoke exact published package
+        shell: bash
+        run: |
+          VERSION="$(node -p "require('./source/package.json').version")"
+          npm install --prefix package-smoke --ignore-scripts --no-audit --no-fund "@specport/specport@$VERSION"
+          test "$(./package-smoke/node_modules/.bin/specport --version)" = "$VERSION"
+          ./package-smoke/node_modules/.bin/specport coverage source --json >/dev/null
+
+      - name: Generate coverage proof
+        run: node scripts/generate-coverage-proof.mjs
+        env:
+          SPECPORT_SOURCE_DIR: source
+
+      - name: Verify static site
+        run: node scripts/verify-site.mjs
+
       - name: Prepare static site artifact
         run: |
           mkdir public
           cp index.html styles.css app.js favicon.svg og-image.svg logo.svg release.json public/
+          cp -R proof public/proof
 
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
@@ -61,3 +84,16 @@ jobs:
       - name: Deploy to Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify deployed page and evidence
+        shell: bash
+        run: |
+          PAGE_URL="${{ steps.deployment.outputs.page_url }}"
+          PAGE_URL="${PAGE_URL%/}/"
+          curl --fail --retry 6 --retry-delay 3 --retry-all-errors "$PAGE_URL" --output deployed.html
+          curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}release.json" --output deployed-release.json
+          curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}proof/coverage-gap/receipt.json" --output deployed-proof.json
+          grep -F "SpecPort — catch AI review gaps before merge" deployed.html
+          grep -F "npx --yes @specport/specport@latest coverage" deployed.html
+          node -e "const r=require('./deployed-release.json'); if(r.publicationStatus!=='PUBLISHED') process.exit(1)"
+          node -e "const p=require('./deployed-proof.json'); if(p.result?.coverage!=='partial'||p.result?.unreviewedPaths?.[0]!=='src/retry-policy.ts') process.exit(1)"

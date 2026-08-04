@@ -1,5 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 88" role="img" aria-labelledby="logo-title logo-description">
-  <title id="logo-title">SPEC</title>
-  <desc id="logo-description">The SpecPort wordmark, set in four uppercase letters.</desc>
-  <text x="3" y="70" fill="#10233d" font-family="Arial, Helvetica, sans-serif" font-size="74" font-weight="800" letter-spacing="3">SPEC</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 56" role="img" aria-labelledby="logo-title logo-description" shape-rendering="geometricPrecision">
+  <title id="logo-title">SpecPort</title>
+  <desc id="logo-description">A review-gap mark followed by the SpecPort wordmark.</desc>
+  <g fill="none" stroke="#15181d" stroke-width="2" stroke-linecap="square">
+    <path d="M4 6h9M4 6v44M4 50h9"/>
+    <path d="M44 6h-9M44 6v44M44 50h-9"/>
+    <path d="M14 17h20M14 28h20"/>
+  </g>
+  <path d="M22 39h12" stroke="#c94e25" stroke-width="3" stroke-linecap="square"/>
+  <text x="58" y="38" fill="#15181d" font-family="Bahnschrift, Aptos Display, Helvetica Neue, sans-serif" font-size="29" font-weight="600" letter-spacing="-0.5">SpecPort</text>
 </svg>
