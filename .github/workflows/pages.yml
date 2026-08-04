@@ -103,7 +103,7 @@ jobs:
           curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}release.json" --output deployed-release.json
           curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}proof/coverage-gap/receipt.json" --output deployed-proof.json
           curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}share-spec.html" --output deployed-share.html
-          DEEP_CODE="$(curl --silent --show-error --retry 6 --retry-delay 3 --retry-all-errors --output deployed-deep.html --write-out '%{http_code}' "${PAGE_URL}stancsz/61a2777a086ae76b94106745bda85102")"
+          DEEP_CODE="$(curl --silent --show-error --retry 6 --retry-delay 3 --retry-all-errors --output deployed-deep.html --write-out '%{http_code}' "${PAGE_URL}karpathy/442a6bf555914893e9891c11519de94f")"
           test "$DEEP_CODE" = "404"
           grep -F "Loading shared spec" deployed-deep.html
           grep -F 'data-view="spec"' deployed-deep.html

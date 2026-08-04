@@ -146,6 +146,8 @@ assert(script.includes('https://api.github.com/gists/'), 'JavaScript is missing 
 assert(script.includes('https://api.github.com/repos/'), 'JavaScript is missing the GitHub repository SPEC.md fetch.');
 assert(script.includes('parseShareInput'), 'JavaScript is missing Share spec input detection.');
 assert(script.includes('root SPEC.md'), 'JavaScript must explain the repository root SPEC.md contract.');
+assert(script.includes('candidates.find(isTextFile)'), 'Gists must support a single readable Markdown file.');
+assert(script.includes('readSingleGistFile'), 'JavaScript is missing the single-file Gist fallback.');
 assert(script.includes('credentials: "omit"'), 'Gist fetches must omit browser credentials.');
 assert(script.includes('import("/spec-model.mjs")'), 'Deep-link route must load the parser from the site root.');
 assert(script.includes('canonicalGistUrl'), 'Rendered source links must use the Gist API canonical URL.');
@@ -172,6 +174,8 @@ assert(parseShareRoute('/repo/61a2777a086ae76b94106745bda85102')?.kind === 'gist
 assert(parseShareInput('https://github.com/specport/specport')?.kind === 'repo', 'Repository URL input parser failed.');
 assert(parseShareInput('specport/specport')?.kind === 'repo', 'Bare repository input parser failed.');
 assert(parseShareInput('https://gist.github.com/stancsz/61a2777a086ae76b94106745bda85102')?.kind === 'gist', 'Gist URL input parser failed.');
+const karpathyGist = parseShareInput('https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f');
+assert(karpathyGist.kind === 'gist' && karpathyGist.owner === 'karpathy', 'Demo Gist input parser failed.');
 const parsedFixture = parseSpecSource('# Demo\n\nA short idea.\n\n## Features\n\n- One thing\n\n## User flow\n\n1. Start\n');
 assert(parsedFixture.title === 'Demo' && parsedFixture.keyFeatures[0] === 'One thing', 'Spec parser fixture failed.');
 assert(parsedFixture.flow[0] === 'Start', 'Spec parser did not preserve ordered steps.');
