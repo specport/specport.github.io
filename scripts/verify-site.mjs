@@ -137,14 +137,16 @@ assert(css.includes('@media (max-width: 760px)'), 'CSS is missing the primary mo
 assert(shareHtml.includes('data-view="share-spec"'), 'Share spec page is missing its view marker.');
 assert(shareHtml.includes('data-share-form'), 'Share spec page is missing its source form.');
 assert(shareHtml.includes('data-share-input'), 'Share spec page is missing its source input.');
+assert(shareHtml.includes('data-share-link'), 'Share spec page is missing its nearby generated-link slot.');
 assert(shareHtml.includes('data-share-result'), 'Share spec page is missing its result root.');
-assert(shareCss.includes('.share-hero') && shareCss.includes('.share-result-panel'), 'Share spec stylesheet is missing core page treatments.');
+assert(shareCss.includes('.share-hero') && shareCss.includes('.share-quick-link') && shareCss.includes('.share-result-panel'), 'Share spec stylesheet is missing core page treatments.');
 assert(!script.includes('.innerHTML'), 'JavaScript must not assign fetched data with innerHTML.');
 assert(!script.includes('document.write'), 'JavaScript must not write fetched content into the document stream.');
 assert(!script.includes('insertAdjacentHTML'), 'JavaScript must not inject fetched content as HTML.');
 assert(script.includes('https://api.github.com/gists/'), 'JavaScript is missing the GitHub Gist route fetch.');
 assert(script.includes('https://api.github.com/repos/'), 'JavaScript is missing the GitHub repository SPEC.md fetch.');
 assert(script.includes('parseShareInput'), 'JavaScript is missing Share spec input detection.');
+assert(script.includes('renderShareLink'), 'JavaScript is missing the nearby generated-link control.');
 assert(script.includes('root SPEC.md'), 'JavaScript must explain the repository root SPEC.md contract.');
 assert(script.includes('candidates.find(isTextFile)'), 'Gists must support a single readable Markdown file.');
 assert(script.includes('readSingleGistFile'), 'JavaScript is missing the single-file Gist fallback.');

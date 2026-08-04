@@ -130,8 +130,9 @@
     const form = document.querySelector("[data-share-form]");
     const input = document.querySelector("[data-share-input]");
     const status = document.querySelector("[data-share-status]");
+    const shareLink = document.querySelector("[data-share-link]");
     const result = document.querySelector("[data-share-result]");
-    if (!form || !input || !status || !result) return;
+    if (!form || !input || !status || !shareLink || !result) return;
 
     const setStatus = (message, state = "idle") => {
       status.textContent = message;
@@ -141,6 +142,8 @@
     const lookup = async (value) => {
       result.hidden = true;
       result.replaceChildren();
+      shareLink.hidden = true;
+      shareLink.replaceChildren();
       setStatus("Checking the source and looking for a root SPEC.md…", "loading");
       try {
         const { parseShareInput, parseSpecSource } = await import("/spec-model.mjs");
@@ -149,6 +152,7 @@
         const resolved = await resolveSpecSource(route);
         const model = parseSpecSource(resolved.sourceText, resolved.filename);
         renderShareResult(result, route, resolved, model);
+        renderShareLink(shareLink, route);
         setStatus("Ready — your share link is generated.", "ready");
       } catch (error) {
         renderShareError(result, error);
@@ -192,18 +196,6 @@
     );
     panel.append(details);
 
-    const linkBox = createElement("div", "share-link-box");
-    linkBox.append(createElement("p", "share-link-label", "Generated SpecPort link"));
-    const linkRow = createElement("div", "share-link-row");
-    const linkInput = createElement("input", "share-link-input");
-    linkInput.type = "text";
-    linkInput.value = shareUrl;
-    linkInput.readOnly = true;
-    linkInput.setAttribute("aria-label", "Generated SpecPort share link");
-    linkRow.append(linkInput, createCopyButton(shareUrl, "Copy link"));
-    linkBox.append(linkRow);
-    panel.append(linkBox);
-
     const actions = createElement("div", "share-result-actions");
     actions.append(
       createLink("View spec", shareUrl, "button button-primary"),
@@ -222,6 +214,20 @@
     panel.append(preview, createElement("p", "share-result-note", resolved.sourceNote));
     root.hidden = false;
     root.append(panel);
+    wireCopyButtons(root);
+  }
+
+  function renderShareLink(root, route) {
+    const shareUrl = new URL(route.canonicalPath, window.location.origin).href;
+    const linkInput = createElement("input", "share-quick-link-input");
+    linkInput.type = "text";
+    linkInput.value = shareUrl;
+    linkInput.readOnly = true;
+    linkInput.setAttribute("aria-label", "Generated SpecPort share link");
+    const linkRow = createElement("div", "share-quick-link-row");
+    linkRow.append(linkInput, createCopyButton(shareUrl, "Copy link"));
+    root.append(createElement("p", "share-link-label", "Generated SpecPort link"), linkRow);
+    root.hidden = false;
     wireCopyButtons(root);
   }
 
