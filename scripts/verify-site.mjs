@@ -247,10 +247,12 @@ assert(script.includes('https://api.github.com/repos/'), 'JavaScript is missing 
 assert(script.includes('parseShareInput'), 'JavaScript is missing Share spec input detection.');
 assert(script.includes('renderShareLink'), 'JavaScript is missing the nearby generated-link control.');
 assert(script.includes('createCodingAgentPrompt'), 'JavaScript is missing the Gist coding-agent prompt generator.');
+assert(script.includes('createAgentPromptPreview(agentPrompt, { className: "spec-agent-prompt", open: true })'), 'Deep Gist spec pages must show the coding-agent prompt handoff.');
 assert(script.includes('Copy coding-agent prompt'), 'Gist results must expose a coding-agent prompt copy button.');
 assert(script.includes('npm install --save-dev @specport/specport@latest'), 'Coding-agent prompt must install the published SpecPort package.');
 assert(script.includes('npx --no-install specport spec check SPEC.md --json'), 'Coding-agent prompt must require a SpecPort structural check.');
 assert(script.includes('route.kind === "gist"'), 'Coding-agent prompt must be limited to resolved Gist sources.');
+assert(specCss.includes('.spec-agent-prompt'), 'Spec stylesheet is missing the deep-route coding-agent prompt treatment.');
 assert(script.includes('root SPEC.md'), 'JavaScript must explain the repository root SPEC.md contract.');
 assert(script.includes('candidates.find(isTextFile)'), 'Gists must support a single readable Markdown file.');
 assert(script.includes('readSingleGistFile'), 'JavaScript is missing the single-file Gist fallback.');
