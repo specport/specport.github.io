@@ -80,7 +80,7 @@ jobs:
       - name: Prepare static site artifact
         run: |
           mkdir public
-          cp index.html styles.css app.js favicon.svg og-image.svg logo.svg release.json public/
+          cp index.html 404.html styles.css spec.css app.js spec-model.mjs favicon.svg og-image.svg logo.svg release.json public/
           cp -R proof public/proof
 
       - name: Upload static site
@@ -100,6 +100,10 @@ jobs:
           curl --fail --retry 6 --retry-delay 3 --retry-all-errors "$PAGE_URL" --output deployed.html
           curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}release.json" --output deployed-release.json
           curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}proof/coverage-gap/receipt.json" --output deployed-proof.json
+          DEEP_CODE="$(curl --silent --show-error --retry 6 --retry-delay 3 --retry-all-errors --output deployed-deep.html --write-out '%{http_code}' "${PAGE_URL}stancsz/61a2777a086ae76b94106745bda85102")"
+          test "$DEEP_CODE" = "404"
+          grep -F "Loading shared spec" deployed-deep.html
+          grep -F 'data-view="spec"' deployed-deep.html
           grep -F "SpecPort — catch AI review gaps before merge" deployed.html
           grep -F "npx --yes @specport/specport@latest coverage" deployed.html
           node -e "const r=require('./deployed-release.json'); if(r.publicationStatus!=='PUBLISHED') process.exit(1)"
