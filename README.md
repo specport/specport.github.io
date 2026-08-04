@@ -7,7 +7,22 @@ The page leads with the current product wedge: compare the exact final Git tree
 with an approved scope or pinned review before merge. A bare `coverage` run is
 described honestly as an inventory; it becomes a coverage verdict only when the
 user supplies an explicit comparison source. The broader `SPEC.md` lifecycle is
-secondary workflow depth, and the public spec network remains labeled future.
+secondary workflow depth. The site also exposes the public SpecPort catalog as a
+searchable, filterable marketplace for reusable specs.
+
+## Catalog feed
+
+`catalog.json` is a generated snapshot from the public
+[`specport/specs`](https://github.com/specport/specs) repository. The browser-side
+`catalog.js` controller renders cards, local search, category/build-state/tag
+filters, source provenance, license state, detail records, and the exact
+`specport pull` command without evaluating catalog content as HTML or code.
+
+The Pages workflow checks out and verifies the catalog repository on every site
+build and on an hourly schedule, then copies its generated `catalog.json` into
+the published artifact. The catalog repository owns discovery, classification,
+reviewable updates, and the canonical `SPEC.md` files; this repository is only
+the public browse surface.
 
 ## Share a text idea as a visual spec
 

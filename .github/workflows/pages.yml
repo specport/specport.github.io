@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
 
 permissions:
   contents: read
@@ -33,6 +35,14 @@ jobs:
           path: source
           persist-credentials: false
 
+      - name: Check out generated catalog source
+        uses: actions/checkout@v5
+        with:
+          repository: specport/specs
+          ref: main
+          path: catalog-source
+          persist-credentials: false
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -49,26 +59,37 @@ jobs:
           npm ci --ignore-scripts --no-audit --no-fund
           npm run build
 
+      - name: Verify generated catalog source
+        working-directory: catalog-source
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          CATALOG_REF="$(git rev-parse HEAD)"
+          SPECPORT_CATALOG_REF="$CATALOG_REF" npm run check
+
       - name: Generate release metadata
         run: node scripts/sync-site-release.mjs
         env:
           SPECPORT_SOURCE_DIR: source
           SPECPORT_PAGES_STATUS: "PAGES / VERIFY AFTER DEPLOY"
 
-      - name: Smoke exact published package
+      - name: Smoke exact package artifact
         shell: bash
         run: |
           set -euxo pipefail
           VERSION="$(node -p "require('./source/package.json').version")"
-          npm install --prefix package-smoke --ignore-scripts --no-audit --no-fund "@specport/specport@$VERSION"
-          PUBLISHED_ENTRYPOINT="./package-smoke/node_modules/@specport/specport/dist/cli.js"
-          # Equivalent user-facing command: specport coverage source --json
+          mkdir -p package-smoke
+          npm pack ./source --pack-destination "$GITHUB_WORKSPACE/package-smoke"
+          TARBALL="$GITHUB_WORKSPACE/package-smoke/specport-specport-$VERSION.tgz"
+          test -f "$TARBALL"
+          npm install --prefix package-smoke --ignore-scripts --no-audit --no-fund "$TARBALL"
+          PACKAGE_ENTRYPOINT="./package-smoke/node_modules/@specport/specport/dist/cli.js"
+          # Equivalent user-facing command after a clean exact-artifact install: specport coverage source --json
           echo "expected_version=$VERSION"
-          REPORTED_VERSION="$(node "$PUBLISHED_ENTRYPOINT" --version)"
+          REPORTED_VERSION="$(node "$PACKAGE_ENTRYPOINT" --version)"
           echo "reported_version=$REPORTED_VERSION"
           test "$REPORTED_VERSION" = "$VERSION"
-          node "$PUBLISHED_ENTRYPOINT" coverage source --json > coverage-smoke.json
-          node -e "const p=require('./source/package.json'); const r=require('./coverage-smoke.json'); if(r?.schemaVersion !== p.version || r?.verdict !== 'inventory-only') process.exit(1)"
+          node "$PACKAGE_ENTRYPOINT" coverage source --json > coverage-smoke.json
+          EXPECTED_VERSION="$VERSION" node -e "const r=require('./coverage-smoke.json'); if(r?.schemaVersion !== process.env.EXPECTED_VERSION || r?.verdict !== 'inventory-only') process.exit(1)"
 
       - name: Generate coverage proof
         run: node scripts/generate-coverage-proof.mjs
@@ -81,7 +102,8 @@ jobs:
       - name: Prepare static site artifact
         run: |
           mkdir public
-          cp index.html share-spec.html 404.html styles.css spec.css share-spec.css app.js spec-model.mjs favicon.svg og-image.svg logo.svg release.json public/
+          cp index.html share-spec.html 404.html styles.css spec.css share-spec.css app.js spec-model.mjs catalog.js favicon.svg og-image.svg logo.svg release.json public/
+          cp catalog-source/catalog.json public/catalog.json
           cp -R proof public/proof
 
       - name: Upload static site
@@ -100,6 +122,7 @@ jobs:
           PAGE_URL="${PAGE_URL%/}/"
           curl --fail --retry 6 --retry-delay 3 --retry-all-errors "$PAGE_URL" --output deployed.html
           curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}release.json" --output deployed-release.json
+          curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}catalog.json" --output deployed-catalog.json
           curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}proof/coverage-gap/receipt.json" --output deployed-proof.json
           curl --fail --retry 6 --retry-delay 3 --retry-all-errors "${PAGE_URL}share-spec.html" --output deployed-share.html
           DEEP_CODE="$(curl --silent --show-error --retry 6 --retry-delay 3 --retry-all-errors --output deployed-deep.html --write-out '%{http_code}' "${PAGE_URL}karpathy/442a6bf555914893e9891c11519de94f")"
@@ -115,4 +138,7 @@ jobs:
           grep -F "SpecPort — catch AI review gaps before merge" deployed.html
           grep -F "npx --yes @specport/specport@latest coverage" deployed.html
           node -e "const r=require('./deployed-release.json'); if(r.publicationStatus!=='PUBLISHED') process.exit(1)"
+          grep -F "SpecPort" deployed.html
+          grep -F "data-catalog-results" deployed.html
+          node -e "const c=require('./deployed-catalog.json'); if(c.schemaVersion!=='1.0.0'||!Array.isArray(c.searchIndex)||!c.githubDiscovery) process.exit(1)"
           node -e "const p=require('./deployed-proof.json'); if(p.result?.coverage!=='partial'||p.result?.unreviewedPaths?.[0]!=='src/retry-policy.ts') process.exit(1)"

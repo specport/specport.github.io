@@ -68,9 +68,50 @@
     for (const node of document.querySelectorAll(selector)) node.textContent = String(value);
   };
 
+  const setCopyValue = (selector, value) => {
+    for (const node of document.querySelectorAll(selector)) {
+      node.setAttribute("data-copy", value);
+    }
+  };
+
+  const setAttribute = (selector, name, value) => {
+    for (const node of document.querySelectorAll(selector)) {
+      node.setAttribute(name, value);
+    }
+  };
+
   const updateReleaseMetadata = (release) => {
     if (!release || typeof release !== "object") return;
-    const status = typeof release.publicationStatus === "string" ? release.publicationStatus : null;
+    const status = typeof release.publicationStatus === "string"
+      ? release.publicationStatus
+      : null;
+    const published = status === "PUBLISHED";
+    const sourceCommand = "git clone https://github.com/specport/specport.git specport";
+    const sourceInstallCommand = "git clone https://github.com/specport/specport.git specport; cd specport; npm ci --ignore-scripts --no-audit --no-fund; npm run build";
+    const sourceCoverageCommand = "node dist/cli.js coverage";
+    const quickStartCommand = published
+      ? "npx --yes @specport/specport@latest coverage"
+      : sourceCommand;
+    const installCommand = published
+      ? "npm install --save-dev @specport/specport"
+      : sourceInstallCommand;
+    const coverageCommand = published
+      ? "npx --no-install specport coverage"
+      : sourceCoverageCommand;
+    setText("[data-release-command-context]", published ? "Published package / exact npm version" : "Current source checkout / npm publication pending");
+    setAttribute("[data-release-command-box]", "aria-label", published ? "Run the published SpecPort package" : "Use the verified SpecPort source checkout");
+    setAttribute("[data-release-command-copy]", "aria-label", published ? "Copy the published SpecPort command" : "Copy the SpecPort source checkout command");
+    setAttribute("[data-release-install-copy]", "aria-label", published ? "Copy the npm install command" : "Copy the source checkout command");
+    setText("[data-release-command]", quickStartCommand);
+    setCopyValue("[data-release-command-copy]", quickStartCommand);
+    setText("[data-release-install-command]", installCommand);
+    setCopyValue("[data-release-install-copy]", installCommand);
+    setText("[data-release-coverage-command]", coverageCommand);
+    setCopyValue("[data-release-coverage-copy]", coverageCommand);
+    setText("[data-release-install-title]", published ? "Install the published package" : "Use the current source checkout");
+    setText("[data-release-qualifier]", published
+      ? "Starts as a final-tree inventory. Add an approved scope or pinned review for a fail-closed coverage verdict."
+      : "Then run cd specport; npm ci --ignore-scripts --no-audit --no-fund; npm run build; node dist/cli.js coverage. This source path is shown because the current package version is not published.");
     setText("[data-release-status]", status);
     setText("[data-release-version]", release.version);
     setText("[data-release-license]", release.license);
@@ -80,8 +121,8 @@
     if (status) {
       document.documentElement.dataset.publicationStatus = status;
       for (const node of document.querySelectorAll("[data-release-state]")) {
-        node.classList.toggle("release-state-published", status === "PUBLISHED");
-        node.classList.toggle("release-state-warning", status !== "PUBLISHED");
+        node.classList.toggle("release-state-published", published);
+        node.classList.toggle("release-state-warning", !published);
       }
     }
     const note = document.querySelector("[data-release-note]");
